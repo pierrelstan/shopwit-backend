@@ -13,7 +13,22 @@ const userShema = mongoose.Schema({
   },
   password: {type: String, require: true},
   avatar: {type: String},
-  created: {type: Date, default: Date.now},
+  active: {type: Boolean, default: true},
+  role: {type: String, enum: ['admin', 'user'], default: 'user'},
+  permission: [
+    {
+      type: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'permissionType',
+        required: true,
+      },
+      read: {type: Boolean, default: false, required: true},
+      write: {type: Boolean, default: false, required: true},
+      delete: {type: Boolean, default: false, required: true},
+    },
+  ],
+  created_at: {type: Date, default: Date.now},
+  updated_at: {type: Date, default: Date.now},
 });
 
 userShema.plugin(uniqueValidator);
