@@ -66,11 +66,7 @@ exports.findOrderByUserId = async (req, res, next) => {
 
   order
     .then((order) => {
-      let a;
-      for (let i of order) {
-        a = i.carts;
-      }
-      res.status(201).json(a);
+      res.status(201).json(order);
     })
     .catch((error) => {
       res.status(404).json({
