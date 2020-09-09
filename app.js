@@ -19,8 +19,7 @@ mongoose
     console.log('Unable to connect to MONGODB ATLAS!');
     console.error(error);
   });
-// MONGODB PASSWORD:yStLbYWxpZR3bQGl
-// MONGODB CONNECTION : mongodb+srv://stanley:<password>@cluster0-pwial.mongodb.net/test?retryWrites=true&w=majority
+
 app.use(
   cors({
     credentials: true,

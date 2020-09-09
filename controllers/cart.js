@@ -2,8 +2,17 @@ const Item = require('../models/item');
 // const User = require("../models/user");
 const Cart = require('../models/cart');
 const jwt = require('jsonwebtoken');
+const {validationResult} = require('express-validator');
 
 exports.addToCart = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      errors: errors.array(),
+    });
+  }
+
   let ItemId = req.params.id;
   let item = Item.findOne({
     _id: ItemId,
@@ -18,6 +27,9 @@ exports.addToCart = (req, res, next) => {
       if (err) console.log(err);
       if (alreadyExistCart) {
         console.log('This has already been saved');
+        return res.status(401).json({
+          errors: [{msg: 'This has already been saved'}],
+        });
       } else {
         item
           .then((item) => {
@@ -52,6 +64,7 @@ exports.addToCart = (req, res, next) => {
     },
   );
 };
+
 exports.findCartByUserId = (req, res, next) => {
   let id = req.user.userId;
   let cart = Cart.find({userId: id});

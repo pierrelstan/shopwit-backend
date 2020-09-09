@@ -36,8 +36,8 @@ exports.getOneItem = (req, res, next) => {
     _id: req.params.id,
   })
 
-    .then((thing) => {
-      res.status(200).json(thing);
+    .then((item) => {
+      res.status(200).json(item);
     })
     .catch((error) => {
       res.status(404).json({
@@ -48,8 +48,8 @@ exports.getOneItem = (req, res, next) => {
 
 exports.getAllItem = (req, res, next) => {
   Item.find()
-    .sort('-date')
-    .limit(10)
+    .sort('-created')
+    .limit(8)
     .then((items) => {
       res.status(200).json(items);
     })
@@ -115,4 +115,26 @@ exports.getAllItemsByUser = (req, res, next) => {
         err: err,
       });
     });
+};
+
+function escapeRegex(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
+exports.searchItems = (req, res, next) => {
+  console.log(req);
+  const regex = new RegExp(escapeRegex(req.query.title), 'gi');
+  Item.find(
+    {
+      title: regex,
+    },
+    function (err, items) {
+      console.log('Partial Search Begins');
+      console.log(items);
+      if (err) res.status(401).json(err);
+      else {
+        res.status(201).json(items);
+      }
+    },
+  );
 };
