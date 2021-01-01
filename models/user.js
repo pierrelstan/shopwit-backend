@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
 const userShema = mongoose.Schema({
-  firstname: {type: String, trim: true, require: true},
-  lastname: {type: String, trim: true, require: true},
+  firstname: { type: String, trim: true, require: true },
+  lastname: { type: String, trim: true, require: true },
   email: {
     type: String,
     lowercase: true,
@@ -11,10 +11,10 @@ const userShema = mongoose.Schema({
     require: true,
     unique: true,
   },
-  password: {type: String, require: true},
-  avatar: {type: String},
-  active: {type: Boolean, default: true},
-  role: {type: String, enum: ['admin', 'user'], default: 'user'},
+  password: { type: String, require: true },
+  avatar: { type: String },
+  active: { type: Boolean, default: true },
+  role: { type: String, enum: ['admin', 'user'], default: 'user' },
   permission: [
     {
       type: {
@@ -22,13 +22,13 @@ const userShema = mongoose.Schema({
         ref: 'permissionType',
         required: true,
       },
-      read: {type: Boolean, default: false, required: true},
-      write: {type: Boolean, default: false, required: true},
-      delete: {type: Boolean, default: false, required: true},
+      read: { type: Boolean, default: false, required: true },
+      write: { type: Boolean, default: false, required: true },
+      delete: { type: Boolean, default: false, required: true },
     },
   ],
-  created: {type: Date, default: Date.now},
-  updated_at: {type: Date, default: Date.now},
+  created: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 userShema.plugin(uniqueValidator);

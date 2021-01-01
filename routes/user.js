@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const UserCtrl = require('../controllers/user');
 const auth = require('../middleware/auth');
-const {check, validationResult, body} = require('express-validator');
+const { check, validationResult, body } = require('express-validator');
 
 router.get('/', auth, UserCtrl.user);
 router.post(
@@ -10,11 +10,11 @@ router.post(
   [
     check('firstname', 'First Name is required').not().isEmpty(),
     check('lastname', 'Last Name is required').not().isEmpty(),
-    check('email', 'Please include a valid email').isEmail(),
+    check('email', 'Please include a valid email').isEmail().exists(),
     check(
       'password',
       'Please enter a password with 6 or more characters',
-    ).isLength({min: 6}),
+    ).isLength({ min: 6 }),
   ],
   UserCtrl.signup,
 );
@@ -26,7 +26,7 @@ router.post(
   ],
   UserCtrl.login,
 );
-router.get('/users', auth, UserCtrl.getAllUser);
+router.get('/users', UserCtrl.getAllUser);
 router.get(
   '/resetpassword',
   [check('email', 'Please include a valid email').isEmail()],
@@ -37,12 +37,12 @@ router.post(
   check(
     'password',
     'Please enter a password with 6 or more characters',
-  ).isLength({min: 6}),
+  ).isLength({ min: 6 }),
   check(
     'password2',
     'Please enter a password with 6 or more characters',
-  ).isLength({min: 6}),
-  body('passwordConfirmation').custom((value, {req}) => {
+  ).isLength({ min: 6 }),
+  body('passwordConfirmation').custom((value, { req }) => {
     if (req.body.password2 !== req.body.password) {
       throw new Error('Password confirmation does not match password');
     }

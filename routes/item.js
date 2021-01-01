@@ -4,8 +4,9 @@ const router = express.Router();
 const ItemCtrl = require('../controllers/item.js');
 // const OrderCtrl = require("../controllers/order.js");
 const CartCtrl = require('../controllers/cart.js');
+
 const auth = require('../middleware/auth');
-const {check, validationResult, body} = require('express-validator');
+const { check, validationResult, body } = require('express-validator');
 
 // retrieving all
 router.use('/all', ItemCtrl.getAllItem);
@@ -21,6 +22,9 @@ router.get('/user/items/:id', auth, ItemCtrl.getAllItemsByUser);
 // search items
 router.get('/s/search?', ItemCtrl.searchItems);
 
+// pagination items
+router.get('/page/:page', ItemCtrl.getPaginationItems);
+
 // create an order
 // router.post("/new/order", OrderCtrl.postOrder);
 // add to cart
@@ -30,4 +34,5 @@ router.get('/cart/:id', auth, CartCtrl.findCartByUserId);
 
 router.post('/removeCart/:id', auth, CartCtrl.removeCartById);
 router.put('/updateCart/:id', auth, CartCtrl.updateCart);
+
 module.exports = router;

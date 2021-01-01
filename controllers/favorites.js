@@ -47,7 +47,6 @@ exports.addToFavorites = (req, res, next) => {
               })
               .save()
               .then((carts) => {
-                // console.log(carts);
                 res.status(201).json(carts);
               })
               .catch((error) => {

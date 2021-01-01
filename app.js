@@ -5,12 +5,16 @@ const mongoose = require('mongoose');
 const itemRoutes = require('./routes/item');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
+const ratingRoutes = require('./routes/rating');
+const favoritesRoutes = require('./routes/favorites');
 
 const app = express();
+app.use(helmet());
+
 mongoose
   .connect(
     'mongodb+srv://stanley:yStLbYWxpZR3bQGl@cluster0-pwial.mongodb.net/test?retryWrites=true&w=majority',
-    {useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true},
+    { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true },
   )
   .then(() => {
     console.log('Successfully connected to MONGODB ATLAS!');
@@ -23,19 +27,32 @@ mongoose
 app.use(
   cors({
     credentials: true,
+    origin: '*',
   }),
 );
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(
-  bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}),
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true,
+    parameterLimit: 50000,
+  }),
 );
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Headers', 'Content-type,Authorization');
+  res.header('Allow-Control-Allow-Origin: *');
+  res.header('Access-Control-Methods', 'GET,PUT,POST,DELETE');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Content-type,Authorization,Cache-Control',
+  );
+
   next();
 });
 
 app.use('/item', itemRoutes);
 app.use('/order', orderRoutes);
 app.use('/auth', userRoutes);
+app.use('/rating', ratingRoutes);
+app.use('/item', favoritesRoutes);
 module.exports = app;

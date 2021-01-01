@@ -5,10 +5,12 @@ const Order = require('../models/order');
 // const Cart = require("../models/cart");
 const User = require('../models/user');
 const TakeMyMoney = require('../ultils/TakeMyMoney');
+let ITEM_PER_PAGE = 9;
 
 exports.createItem = (req, res, next) => {
   let money = TakeMyMoney(req.body.price);
   const item = new Item({
+    type: req.body.type,
     title: req.body.title,
     description: req.body.description,
     imageUrl: req.body.imageUrl,
@@ -49,7 +51,23 @@ exports.getOneItem = (req, res, next) => {
 exports.getAllItem = (req, res, next) => {
   Item.find()
     .sort('-created')
-    .limit(8)
+    .then((items) => {
+      res.status(200).json(items);
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
+};
+
+exports.getPaginationItems = (req, res, next) => {
+  let page = parseInt(req.params.page);
+  let skip = (page - 1) * ITEM_PER_PAGE;
+  Item.find()
+    .skip(skip)
+    .limit(ITEM_PER_PAGE)
+    .sort('-created')
     .then((items) => {
       res.status(200).json(items);
     })
@@ -106,7 +124,7 @@ exports.deleteItem = (req, res, next) => {
 };
 
 exports.getAllItemsByUser = (req, res, next) => {
-  Item.find({userId: req.params.id})
+  Item.find({ userId: req.params.id })
     .then((item) => {
       res.status(201).json(item);
     })
@@ -122,15 +140,12 @@ function escapeRegex(text) {
 }
 
 exports.searchItems = (req, res, next) => {
-  console.log(req);
   const regex = new RegExp(escapeRegex(req.query.title), 'gi');
   Item.find(
     {
       title: regex,
     },
     function (err, items) {
-      console.log('Partial Search Begins');
-      console.log(items);
       if (err) res.status(401).json(err);
       else {
         res.status(201).json(items);

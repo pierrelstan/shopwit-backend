@@ -19,12 +19,18 @@
     "express": "^4.17.1",
     "express-mongoose-generator": "^3.0.3",
     "express-validator": "^6.6.1",
+    "fs": "^0.0.1-security",
     "gravatar": "^1.8.1",
+    "helmet": "^4.3.1",
+    "http-proxy-middleware": "^1.0.6",
     "i": "^0.3.6",
     "jsonwebtoken": "^8.5.1",
+    "jw-paginate": "^1.0.4",
     "mongoose": "^5.10.0",
+    "mongoose-paginate": "^5.0.3",
     "mongoose-unique-validator": "^2.0.3",
     "nodemailer": "^6.4.11",
+    "nodemon": "^2.0.6",
     "npm": "^6.14.8",
     "stripe": "^8.89.0"
   }

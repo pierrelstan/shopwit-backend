@@ -2,7 +2,7 @@ const Item = require('../models/item');
 // const User = require("../models/user");
 const Cart = require('../models/cart');
 const jwt = require('jsonwebtoken');
-const {validationResult} = require('express-validator');
+const { validationResult } = require('express-validator');
 
 exports.addToCart = (req, res, next) => {
   const errors = validationResult(req);
@@ -28,7 +28,7 @@ exports.addToCart = (req, res, next) => {
       if (alreadyExistCart) {
         console.log('This has already been saved');
         return res.status(401).json({
-          errors: [{msg: 'This has already been saved'}],
+          errors: [{ msg: 'This has already been saved' }],
         });
       } else {
         item
@@ -38,6 +38,7 @@ exports.addToCart = (req, res, next) => {
               item: item._id,
               userId: req.user.userId,
               update: false,
+              isAddedToCart: true,
             });
             cart
               .populate({
@@ -67,7 +68,7 @@ exports.addToCart = (req, res, next) => {
 
 exports.findCartByUserId = (req, res, next) => {
   let id = req.user.userId;
-  let cart = Cart.find({userId: id});
+  let cart = Cart.find({ userId: id });
 
   cart.populate({
     path: 'item',
@@ -75,7 +76,12 @@ exports.findCartByUserId = (req, res, next) => {
   });
   cart
     .then((cart) => {
-      res.status(201).json(cart);
+      let ar = [];
+      console.log(cart);
+      cart.filter((el) => {
+        if (el.item !== null) ar.push(el);
+      });
+      res.status(201).json(ar);
     })
     .catch((error) => {
       res.status(404).json({
@@ -107,7 +113,6 @@ exports.updateCart = (req, res, next) => {
 };
 
 exports.removeCartById = (req, res, next) => {
-  // console.log(req);
   const productId = req.params.id;
   let cart = Cart.findOneAndDelete({
     _id: productId,

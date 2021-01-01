@@ -4,9 +4,9 @@ var gravatar = require('gravatar');
 const User = require('../models/user');
 const Item = require('../models/item');
 const Cart = require('../models/cart');
-// const Order = require(".../models/order");
+
 const mongoose = require('mongoose');
-const {validationResult} = require('express-validator');
+const { validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
 
 exports.user = async (req, res, next) => {
@@ -22,7 +22,6 @@ exports.user = async (req, res, next) => {
 };
 
 exports.signup = async (req, res, next) => {
-  console.log(req);
   const errors = validationResult(req);
   // console.log(errors);
   if (!errors.isEmpty()) {
@@ -31,7 +30,7 @@ exports.signup = async (req, res, next) => {
     });
   }
 
-  const {firstname, lastname, password, confirmPassword, email} = req.body;
+  const { firstname, lastname, password, confirmPassword, email } = req.body;
   try {
     // see if user exists
     let user = await User.findOne({
@@ -39,11 +38,12 @@ exports.signup = async (req, res, next) => {
     });
     if (user) {
       return res.status(400).json({
-        errors: [{msg: 'User already exits'}],
+        errors: [{ msg: 'User already exits' }],
       });
     }
     // Get users avatar
     const avatar = gravatar.url(email, {
+      protocol: 'http',
       s: '200',
       r: 'pg',
       d: 'mm',
@@ -70,7 +70,7 @@ exports.signup = async (req, res, next) => {
       },
     };
     let jwtSecret = 'RANDOM_TOKEN_SECRET';
-    jwt.sign(payload, jwtSecret, {expiresIn: 36000}, (err, token) => {
+    jwt.sign(payload, jwtSecret, { expiresIn: 36000 }, (err, token) => {
       if (err) throw err;
       return res.json({
         token,
@@ -85,55 +85,61 @@ exports.signup = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
+  if (errors.isEmpty()) {
+    const { password, email } = req.body;
+    try {
+      // see if user exists
+      let user = await User.findOne({
+        email,
+      });
+      if (!user) {
+        return res.status(400).json({
+          errors: [{ msg: 'Please enter your correct email' }],
+        });
+      }
+      const isMatched = await bcrypt.compare(password, user.password);
+      if (!isMatched) {
+        res.status(404).json({
+          errors: [{ msg: 'Please enter the correct password' }],
+        });
+      }
+      const payload = {
+        user: {
+          userId: user.id,
+        },
+      };
+      let jwtSecret = 'RANDOM_TOKEN_SECRET';
+      jwt.sign(payload, jwtSecret, { expiresIn: 36000 }, (err, token) => {
+        if (err) {
+          res.status(404).json({
+            errors: err,
+          });
+        }
+
+        console.log(token);
+        res.json({
+          token,
+        });
+      });
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).json('Server Error');
+    }
+  } else {
+    console.log('run');
     return res.status(400).json({
       errors: errors.array(),
     });
   }
-
-  const {password, email} = req.body;
-  try {
-    // see if user exists
-    let user = await User.findOne({
-      email,
-    });
-    if (!user) {
-      return res.status(400).json({
-        errors: [{msg: 'Invalid credentials'}],
-      });
-    }
-    const isMatched = await bcrypt.compare(password, user.password);
-    if (!isMatched) {
-      res.status(404).json({
-        errors: [{msg: 'Invalid credentials'}],
-      });
-    }
-    const payload = {
-      user: {
-        userId: user.id,
-      },
-    };
-    let jwtSecret = 'RANDOM_TOKEN_SECRET';
-    jwt.sign(payload, jwtSecret, {expiresIn: 36000}, (err, token) => {
-      if (err) throw err;
-      console.log(token);
-      res.json({
-        token,
-      });
-    });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json('Server Error');
-  }
 };
 
 exports.forgotPassword = async (req, res, next) => {
-  const {firstname, lastname, password, email, avatar} = req.body;
+  const { firstname, lastname, password, email, avatar } = req.body;
   try {
     let user = await User.findOne(req.body.email).select('-password');
     if (!user) {
       return res.status(400).json({
-        errors: [{msg: 'Invalid email'}],
+        errors: [{ msg: 'Invalid email' }],
       });
     }
     const payload = {
@@ -142,7 +148,7 @@ exports.forgotPassword = async (req, res, next) => {
       },
     };
     let jwtSecret = 'RANDOM_TOKEN_SECRET';
-    jwt.sign(payload, jwtSecret, {expiresIn: 36000}, (err, token) => {
+    jwt.sign(payload, jwtSecret, { expiresIn: 36000 }, (err, token) => {
       if (err) throw err;
 
       let testAccount = nodemailer.createTestAccount();
@@ -197,7 +203,7 @@ exports.newPassword = async (req, res, next) => {
     if (!isMatched) {
       console.log('Your enter your old password ');
       return res.status(400).json({
-        errors: [{msg: 'Your enter your old password'}],
+        errors: [{ msg: 'Your enter your old password' }],
       });
     }
 
@@ -216,7 +222,7 @@ exports.newPassword = async (req, res, next) => {
         };
 
         let jwtSecret = 'RANDOM_TOKEN_SECRET';
-        jwt.sign(payload, jwtSecret, {expiresIn: 36000}, (err, token) => {
+        jwt.sign(payload, jwtSecret, { expiresIn: 36000 }, (err, token) => {
           if (err) throw err;
           res.json({
             token,
@@ -249,21 +255,24 @@ exports.getOneUser = (req, res, next) => {
 exports.updateOneUser = (req, res, next) => {
   const user = new User({
     _id: req.params.id,
+    avatar: req.body.avatar,
     firstname: req.body.firstname,
     lastname: req.body.lastname,
-    avatar: req.body.avatar,
-    userId: req.body.userId,
-    email: req.body.email,
+    location: req.body.location,
   });
+  if (!user) {
+    return res.status(400).json({
+      errors: [{ msg: 'Somthing went wrong' }],
+    });
+  }
   User.updateOne(
     {
       _id: req.params.id,
     },
     user,
   )
-    .then((user) => {
+    .then(() => {
       res.status(201).json({
-        user: user,
         message: 'User Updated successfully!',
       });
     })
@@ -289,7 +298,7 @@ exports.getAllUser = (req, res, next) => {
 };
 
 exports.getAllUserItemPopulate = (req, res, next) => {
-  const {id} = req.body;
+  const { id } = req.body;
   Item.findById(id)
 
     .then((user) => {
