@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 var compression = require('compression');
 var helmet = require('helmet');
+require('dotenv').config();
 const itemRoutes = require('./routes/item');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
