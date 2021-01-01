@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+var compression = require('compression');
+var helmet = require('helmet');
 const itemRoutes = require('./routes/item');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
@@ -10,6 +12,7 @@ const favoritesRoutes = require('./routes/favorites');
 
 const app = express();
 app.use(helmet());
+app.use(compression()); //Compress all routes
 
 mongoose
   .connect(
