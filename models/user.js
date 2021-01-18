@@ -27,6 +27,8 @@ const userShema = mongoose.Schema({
       delete: { type: Boolean, default: false, required: true },
     },
   ],
+  resetToken: { type: String },
+  resetTokenExpiration: { type: Date, default: Date.now },
   created: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
