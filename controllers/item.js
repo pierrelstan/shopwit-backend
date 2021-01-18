@@ -4,18 +4,20 @@ const mongoose = require('mongoose');
 const Order = require('../models/order');
 // const Cart = require("../models/cart");
 const User = require('../models/user');
-const TakeMyMoney = require('../ultils/TakeMyMoney');
+const TakeMyMoney = require('../utils/TakeMyMoney');
 let ITEM_PER_PAGE = 9;
 
 exports.createItem = (req, res, next) => {
+  const { genre, imageUrl, title, quantityProducts, description } = req.body;
   let money = TakeMyMoney(req.body.price);
+
   const item = new Item({
-    type: req.body.type,
-    title: req.body.title,
-    description: req.body.description,
-    imageUrl: req.body.imageUrl,
+    genre: genre,
+    title: title,
+    description: description,
+    imageUrl: imageUrl,
     price: money,
-    quantityProducts: req.body.quantityProducts,
+    quantityProducts: quantityProducts,
     userId: req.user.userId,
   });
   // save the data to mongodb
@@ -61,6 +63,21 @@ exports.getAllItem = (req, res, next) => {
     });
 };
 
+exports.getHeigthlastItems = (req, res, next) => {
+  console.log('state');
+  Item.find()
+    .sort('-created')
+    .limit(8)
+    .then((items) => {
+      res.status(200).json(items);
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
+};
+
 exports.getPaginationItems = (req, res, next) => {
   let page = parseInt(req.params.page);
   let skip = (page - 1) * ITEM_PER_PAGE;
@@ -80,6 +97,7 @@ exports.getPaginationItems = (req, res, next) => {
 
 exports.modifyItem = (req, res, next) => {
   let money = TakeMyMoney(req.body.price);
+
   const item = new Item({
     _id: req.params.id,
     title: req.body.title,
@@ -89,6 +107,7 @@ exports.modifyItem = (req, res, next) => {
     quantityProducts: req.body.quantityProducts,
     userId: req.user.userId,
   });
+
   Item.updateOne(
     {
       _id: req.params.id,
@@ -124,12 +143,17 @@ exports.deleteItem = (req, res, next) => {
 };
 
 exports.getAllItemsByUser = (req, res, next) => {
+  if (req.params.id.toString() !== req.user.userId.toString()) {
+    return res.status(401).json({
+      errors: [{ msg: `You don't have the authorization!` }],
+    });
+  }
   Item.find({ userId: req.params.id })
     .then((item) => {
       res.status(201).json(item);
     })
     .catch((err) => {
-      res.status(401).json({
+      res.status(400).json({
         err: err,
       });
     });
