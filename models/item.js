@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const itemShema = mongoose.Schema({
-  type: { type: String, require: true },
+  genre: { type: String, require: true },
   title: { type: String, require: true },
   description: { type: String, require: true },
   imageUrl: { type: String, require: true },
