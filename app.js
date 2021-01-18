@@ -1,4 +1,5 @@
 const express = require('express');
+var path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -53,7 +54,10 @@ app.use((req, res, next) => {
 
   next();
 });
-
+app.use(express.static(path.join(__dirname, './build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build'));
+});
 app.use('/item', itemRoutes);
 app.use('/order', orderRoutes);
 app.use('/auth', userRoutes);
