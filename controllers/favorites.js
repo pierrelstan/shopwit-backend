@@ -90,7 +90,6 @@ exports.findFavoritesByUserId = (req, res, next) => {
 };
 
 exports.removeFavoritesById = (req, res, next) => {
-  console.log(res);
   const productId = req.params.id;
   let favorite = Favorites.findOneAndDelete({
     _id: productId,
