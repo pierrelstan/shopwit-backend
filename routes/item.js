@@ -10,6 +10,8 @@ const { check, validationResult, body } = require('express-validator');
 
 // retrieving all
 router.use('/all', ItemCtrl.getAllItem);
+// retrieving heigth last item
+router.get('/lastproducts', ItemCtrl.getHeigthlastItems);
 // create a new item
 router.post('/new', auth, ItemCtrl.createItem);
 // retrieving one item
