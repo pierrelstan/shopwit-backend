@@ -41,8 +41,6 @@
     "socket.io": "^3.0.5",
     "stripe": "^8.89.0"
   },
-  "proxy": "http://localhost:5000",
-  "engines": {
-    "node": "v12.18.3"
-}
+  "proxy": "http://localhost:5000"
+
 }
