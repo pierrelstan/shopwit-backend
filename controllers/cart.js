@@ -47,7 +47,6 @@ exports.addToCart = (req, res, next) => {
               })
               .save()
               .then((carts) => {
-                // console.log(carts);
                 res.status(201).json(carts);
               })
               .catch((error) => {
@@ -103,7 +102,7 @@ exports.updateCart = (req, res, next) => {
       _id: req.params.id,
     },
     carts,
-    (error, cart) => {
+    (error) => {
       if (error) console.log(error);
       res.status(201).json({
         message: 'Cart Updated Successfully',
@@ -118,12 +117,12 @@ exports.removeCartById = (req, res, next) => {
     _id: productId,
   });
   cart
-    .then((d) => {
+    .then(() => {
       res.status(201).json({
         message: 'Delete successfuly !',
       });
     })
-    .catch(() => {
+    .catch((error) => {
       res.status(404).json({
         error: error,
       });
