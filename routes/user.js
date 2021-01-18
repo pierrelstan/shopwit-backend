@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const UserCtrl = require('../controllers/user');
 const auth = require('../middleware/auth');
-const { check, validationResult, body } = require('express-validator');
+const { check, body } = require('express-validator');
 
 router.get('/', auth, UserCtrl.user);
 router.post(
@@ -27,7 +27,7 @@ router.post(
   UserCtrl.login,
 );
 router.get('/users', UserCtrl.getAllUser);
-router.get(
+router.post(
   '/resetpassword',
   [check('email', 'Please include a valid email').isEmail()],
   UserCtrl.forgotPassword,
