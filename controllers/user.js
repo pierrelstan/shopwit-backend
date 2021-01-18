@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 var gravatar = require('gravatar');
+const crypto = require('crypto');
+const sendGridTransport = require('nodemailer-sendgrid-transport');
 const User = require('../models/user');
 const Item = require('../models/item');
 const Cart = require('../models/cart');
@@ -8,6 +10,25 @@ const Cart = require('../models/cart');
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
+
+let transporter = nodemailer.createTransport(
+  // sendGridTransport({
+  //   auth: {
+  //     api_key:
+  //       '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',
+  //   },
+  // }),
+  {
+    type: 'OAuth2',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: 'stanleypl75@gmail.com', // generated ethereal user
+      pass: '781227JesusIsMyLord', // generated ethereal password
+    },
+  },
+);
 
 exports.user = async (req, res, next) => {
   try {
@@ -134,106 +155,106 @@ exports.login = async (req, res, next) => {
 };
 
 exports.forgotPassword = async (req, res, next) => {
-  const { firstname, lastname, password, email, avatar } = req.body;
-  try {
-    let user = await User.findOne(req.body.email).select('-password');
-    if (!user) {
-      return res.status(400).json({
-        errors: [{ msg: 'Invalid email' }],
+  const { email } = req.body;
+  crypto.randomBytes(32, async (err, buffer) => {
+    if (err) {
+      res.status(400).json({
+        msg: err,
       });
     }
-    const payload = {
-      user: {
-        userId: user.id,
-      },
-    };
-    let jwtSecret = 'RANDOM_TOKEN_SECRET';
-    jwt.sign(payload, jwtSecret, { expiresIn: 36000 }, (err, token) => {
-      if (err) throw err;
-
-      let testAccount = nodemailer.createTestAccount();
-
-      // create reusable transporter object using the default SMTP transport
-      let transporter = nodemailer.createTransport({
-        type: 'OAuth2',
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user: 'stanleypl75@gmail.com', // generated ethereal user
-          pass: 'PPhUOko781227', // generated ethereal password
-        },
-      });
-
+    const token = buffer.toString('hex');
+    try {
+      let user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({
+          errors: { msg: 'No account with that email found.' },
+        });
+      }
+      user.resetToken = token;
+      user.resetTokenExpiration = Date.now() + 3600000;
+      user.save();
       let url = `http://localhost:3000/newpassword/${token}`;
-      // send mail with defined transport object
-      let info = transporter.sendMail({
-        from: 'stanleypl75@gmail.com', // sender address
-        to: 'stanleypl75@gmail.com', // list of receivers
-        subject: 'Hello ✔', // Subject line
-        text: 'Hello world?', // plain text body
-        html: `Please click this link to confirm your email ${url}`, // html body
+      transporter.sendMail({
+        to: email,
+        from: 'shopwit@gmail.com',
+        subject: 'Reset password',
+        html: `Please click this link to create a new password ${url}`,
       });
 
-      res.json({
+      return res.json({
         email: 'Please verify your email',
       });
-    });
-  } catch (err) {
-    console.log(err);
-  }
+    } catch (err) {
+      console.log(err);
+    }
+  });
 };
 
 exports.newPassword = async (req, res, next) => {
+  const { email } = req;
+  let token = req.params.id;
   try {
-    // 1 decode the token
-    let decode = jwt.decode(req.params.id);
+    let user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiration: { $gt: Date.now() },
+    });
 
     const salt = await bcrypt.genSalt(10);
 
     let ha1 = await bcrypt.hash(req.body.password, salt);
-
-    const user = await new User({
-      _id: decode.user.userId,
+    const NewUser = await new User({
+      _id: user._id,
       password: ha1,
+      resetToken: undefined,
+      resetTokenExpiration: undefined,
     });
 
-    const isMatched = await bcrypt.compare(req.body.password, user.password);
-    // 6 if the
+    const isMatched = await bcrypt.compare(req.body.password, NewUser.password);
     if (!isMatched) {
       console.log('Your enter your old password ');
       return res.status(400).json({
         errors: [{ msg: 'Your enter your old password' }],
       });
     }
+    try {
+      let usser = await User.findOneAndUpdate(
+        {
+          _id: user._id,
+        },
+        NewUser,
+        (err, user) => {
+          if (err) console.log(err);
+          const payload = {
+            user: {
+              userId: user._id,
+            },
+          };
 
-    let usser = await User.findOneAndUpdate(
-      {
-        _id: decode.user.userId,
-      },
-      user,
-      (err, user) => {
-        if (err) console.log(err);
-        console.log(user);
-        const payload = {
-          user: {
-            userId: user._id,
-          },
-        };
-
-        let jwtSecret = 'RANDOM_TOKEN_SECRET';
-        jwt.sign(payload, jwtSecret, { expiresIn: 36000 }, (err, token) => {
-          if (err) throw err;
-          res.json({
-            token,
+          let jwtSecret = process.env.RANDOM_TOKEN_SECRET;
+          jwt.sign(payload, jwtSecret, { expiresIn: 36000 }, (err, token) => {
+            if (err) throw err;
+            if (token) {
+              transporter.sendMail({
+                to: email,
+                from: 'shopwit@gmail.com',
+                subject: 'Password reset',
+                html: `Password reset successfully!!`,
+              });
+              return res.json({
+                token,
+              });
+            }
           });
-        });
-      },
-    );
-
-    await user.save();
-    await usser.save();
+        },
+      );
+      await NewUser.save();
+      return await usser.save();
+    } catch (err) {
+      console.log(err);
+      res.status(500).json('Server Error');
+    }
   } catch (err) {
+    console.log(err);
     res.status(500).json('Server Error');
   }
 };
@@ -246,7 +267,6 @@ exports.getOneUser = (req, res, next) => {
     if (err) {
       console.log(err);
     } else {
-      // console.log(req);
       res.status(200).json(user);
     }
   });
