@@ -17,10 +17,11 @@ app.use(helmet());
 app.use(compression()); //Compress all routes
 
 mongoose
-  .connect(
-    'mongodb+srv://stanley:yStLbYWxpZR3bQGl@cluster0-pwial.mongodb.net/test?retryWrites=true&w=majority',
-    { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true },
-  )
+  .connect(process.env.MONGODB_API_KEY, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log('Successfully connected to MONGODB ATLAS!');
   })
@@ -54,13 +55,17 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use(express.static(path.join(__dirname, '/build')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '/build'));
-});
 app.use('/item', itemRoutes);
 app.use('/order', orderRoutes);
 app.use('/auth', userRoutes);
 app.use('/rating', ratingRoutes);
 app.use('/item', favoritesRoutes);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+  });
+}
+
 module.exports = app;
