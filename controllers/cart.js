@@ -26,7 +26,6 @@ exports.addToCart = (req, res, next) => {
     function (err, alreadyExistCart) {
       if (err) console.log(err);
       if (alreadyExistCart) {
-        console.log('This has already been saved');
         return res.status(401).json({
           errors: [{ msg: 'This has already been saved' }],
         });
@@ -76,7 +75,6 @@ exports.findCartByUserId = (req, res, next) => {
   cart
     .then((cart) => {
       let ar = [];
-      console.log(cart);
       cart.filter((el) => {
         if (el.item !== null) ar.push(el);
       });
@@ -111,20 +109,28 @@ exports.updateCart = (req, res, next) => {
   );
 };
 
-exports.removeCartById = (req, res, next) => {
-  const productId = req.params.id;
-  let cart = Cart.findOneAndDelete({
-    _id: productId,
-  });
-  cart
-    .then(() => {
-      res.status(201).json({
+exports.removeCartById = async (req, res, next) => {
+  let cartById = await Cart.findOne({ _id: req.params.id });
+
+  const { userId } = cartById;
+  if (userId === req.user.userId) {
+    const productId = req.params.id;
+
+    try {
+      await Cart.findOneAndDelete({
+        _id: productId,
+      });
+      await res.status(201).json({
         message: 'Delete successfuly !',
       });
-    })
-    .catch((error) => {
-      res.status(404).json({
+    } catch (error) {
+      await res.status(404).json({
         error: error,
       });
+    }
+  } else {
+    res.status(400).json({
+      error: 'Item not belongs to you , access denied!',
     });
+  }
 };
