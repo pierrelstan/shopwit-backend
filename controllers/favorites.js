@@ -1,5 +1,4 @@
 const Item = require('../models/item');
-// const User = require("../models/user");
 const Favorites = require('../models/favorites');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
@@ -76,7 +75,6 @@ exports.findFavoritesByUserId = (req, res, next) => {
   favorite
     .then((cart) => {
       let ar = [];
-      console.log(cart);
       cart.filter((el) => {
         if (el.item !== null) ar.push(el);
       });
@@ -89,20 +87,28 @@ exports.findFavoritesByUserId = (req, res, next) => {
     });
 };
 
-exports.removeFavoritesById = (req, res, next) => {
-  const productId = req.params.id;
-  let favorite = Favorites.findOneAndDelete({
-    _id: productId,
-  });
-  favorite
-    .then((d) => {
-      res.status(201).json({
+exports.removeFavoritesById = async (req, res, next) => {
+  let favoriteById = await Favorites.findOne({ _id: req.params.id });
+
+  const { userId } = favoriteById;
+
+  if (userId === req.user.userId) {
+    try {
+      const productId = req.params.id;
+      await Favorites.findOneAndDelete({
+        _id: productId,
+      });
+      await res.status(201).json({
         message: 'Delete successfuly !',
       });
-    })
-    .catch(() => {
-      res.status(404).json({
+    } catch (error) {
+      await res.status(404).json({
         error: error,
       });
+    }
+  } else {
+    await res.status(400).json({
+      error: 'Item not belongs to you , access denied!',
     });
+  }
 };
