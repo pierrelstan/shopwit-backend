@@ -55,10 +55,10 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use('/item', itemRoutes);
-app.use('/order', orderRoutes);
-app.use('/auth', userRoutes);
-app.use('/rating', ratingRoutes);
-app.use('/item', favoritesRoutes);
+app.use('/api/item', itemRoutes);
+app.use('/api/order', orderRoutes);
+app.use('/api/auth', userRoutes);
+app.use('/api/rating', ratingRoutes);
+app.use('/api/item', favoritesRoutes);
 
 module.exports = app;
