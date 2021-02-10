@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const itemShema = mongoose.Schema({
+const itemSchema = mongoose.Schema({
   genre: { type: String, require: true },
   title: { type: String, require: true },
   description: { type: String, require: true },
@@ -14,4 +14,9 @@ const itemShema = mongoose.Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Item', itemShema);
+module.exports = mongoose.model('Item', itemSchema);
+
+itemSchema.methods.getitembyuserId = function getitembyuserId(err, item) {
+  if (err) console.log(err);
+  return item;
+};
