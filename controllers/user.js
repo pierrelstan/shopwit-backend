@@ -33,7 +33,7 @@ let transporter = nodemailer.createTransport(
 exports.user = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.userId).select(
-      '-password -confirmPassword',
+      '-password -confirmPassword -_id',
     );
     res.json(user);
   } catch (err) {
@@ -136,14 +136,11 @@ exports.login = async (req, res, next) => {
             errors: err,
           });
         }
-
-        console.log(token);
         res.json({
           token,
         });
       });
     } catch (error) {
-      console.log(error.message);
       res.status(500).json('Server Error');
     }
   } else {
@@ -250,16 +247,13 @@ exports.newPassword = async (req, res, next) => {
       await NewUser.save();
       return await usser.save();
     } catch (err) {
-      console.log(err);
       res.status(500).json('Server Error');
     }
   } catch (err) {
-    console.log(err);
     res.status(500).json('Server Error');
   }
 };
 exports.getOneUser = (req, res, next) => {
-  console.log(res);
   let user = User.findById({
     _id: req.user.userId,
   });
