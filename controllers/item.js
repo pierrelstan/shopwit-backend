@@ -2,7 +2,7 @@ const Item = require('../models/item');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Order = require('../models/order');
-// const Cart = require("../models/cart");
+// const Cart = require("../models/cart");1
 const User = require('../models/user');
 const TakeMyMoney = require('../utils/TakeMyMoney');
 let ITEM_PER_PAGE = 9;
@@ -25,7 +25,7 @@ exports.createItem = (req, res, next) => {
     .save()
     .then(() => {
       res.status(201).json({
-        message: 'Post saved successfully!',
+        message: 'Create Item successfully!',
       });
     })
     .catch((error) => {
@@ -64,7 +64,6 @@ exports.getAllItem = (req, res, next) => {
 };
 
 exports.getHeigthlastItems = (req, res, next) => {
-  console.log('state');
   Item.find()
     .sort('-created')
     .limit(8)
@@ -95,60 +94,73 @@ exports.getPaginationItems = (req, res, next) => {
     });
 };
 
-exports.modifyItem = (req, res, next) => {
+exports.modifyItem = async (req, res, next) => {
   let money = TakeMyMoney(req.body.price);
 
-  const item = new Item({
-    _id: req.params.id,
-    title: req.body.title,
-    description: req.body.description,
-    price: money,
-    imageUrl: req.body.imageUrl,
-    quantityProducts: req.body.quantityProducts,
-    userId: req.user.userId,
-  });
-
-  Item.updateOne(
-    {
-      _id: req.params.id,
-    },
-    item,
-  )
-    .then(() => {
-      res.status(201).json({
-        message: 'Item Updated successfully!',
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
+  if (req.user.userId !== req.body.userId) {
+    res.status(401).json({
+      error: 'Item not belongs to you , access denied!',
     });
+  } else {
+    const item = new Item({
+      _id: req.params.id,
+      title: req.body.title,
+      description: req.body.description,
+      price: money,
+      imageUrl: req.body.imageUrl,
+      quantityProducts: req.body.quantityProducts,
+      userId: req.user.userId,
+    });
+
+    Item.updateOne(
+      {
+        _id: req.params.id,
+      },
+      item,
+    )
+      .then(() => {
+        res.status(201).json({
+          message: 'Item Updated successfully!',
+        });
+      })
+      .catch((error) => {
+        res.status(400).json({
+          error: error,
+        });
+      });
+  }
 };
 
-exports.deleteItem = (req, res, next) => {
-  Item.deleteOne({
-    _id: req.params.id,
-  })
-    .then(() => {
-      res.status(200).json({
-        message: 'Item deleted!',
-      });
+exports.deleteItem = async (req, res, next) => {
+  // let myData = { _id: req.params.id, userId: req.user.userId };
+
+  let itemById = await Item.findOne({ _id: req.params.id });
+
+  const { userId } = itemById;
+  if (userId === req.user.userId) {
+    Item.findOneAndDelete({
+      _id: req.params.id,
     })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
+      .then(() => {
+        res.status(200).json({
+          message: 'Delete item successfully!',
+        });
+      })
+      .catch((error) => {
+        res.status(400).json({
+          error: error,
+        });
       });
+  } else {
+    res.status(400).json({
+      error: 'Item not belongs to you , access denied!',
     });
+  }
 };
 
 exports.getAllItemsByUser = (req, res, next) => {
-  if (req.params.id.toString() !== req.user.userId.toString()) {
-    return res.status(401).json({
-      errors: [{ msg: `You don't have the authorization!` }],
-    });
-  }
-  Item.find({ userId: req.params.id })
+  Item.find({ userId: req.user.userId })
+    .sort('-created')
     .then((item) => {
       res.status(201).json(item);
     })
