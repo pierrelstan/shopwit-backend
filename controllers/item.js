@@ -132,8 +132,6 @@ exports.modifyItem = async (req, res, next) => {
 };
 
 exports.deleteItem = async (req, res, next) => {
-  // let myData = { _id: req.params.id, userId: req.user.userId };
-
   let itemById = await Item.findOne({ _id: req.params.id });
 
   const { userId } = itemById;
