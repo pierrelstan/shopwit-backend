@@ -91,24 +91,29 @@ exports.removeFavoritesById = async (req, res, next) => {
   let favoriteById = await Favorites.findOne({ _id: req.params.id });
 
   const { userId } = favoriteById;
-
-  if (userId === req.user.userId) {
-    try {
-      const productId = req.params.id;
-      await Favorites.findOneAndDelete({
-        _id: productId,
-      });
-      await res.status(201).json({
-        message: 'Delete successfuly !',
-      });
-    } catch (error) {
-      await res.status(404).json({
-        error: error,
+  try {
+    if (userId === req.user.userId) {
+      try {
+        const productId = req.params.id;
+        await Favorites.findOneAndDelete({
+          _id: productId,
+        });
+        await res.status(201).json({
+          message: 'Delete successfuly !',
+        });
+      } catch (error) {
+        await res.status(404).json({
+          error: error,
+        });
+      }
+    } else {
+      await res.status(400).json({
+        error: 'Item not belongs to you , access denied!',
       });
     }
-  } else {
+  } catch (error) {
     await res.status(400).json({
-      error: 'Item not belongs to you , access denied!',
+      error: error,
     });
   }
 };
