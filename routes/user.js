@@ -4,7 +4,7 @@ const UserCtrl = require('../controllers/user');
 const auth = require('../middleware/auth');
 const { check, body } = require('express-validator');
 
-router.get('/me', auth, UserCtrl.user);
+router.get('/me/:id', auth, UserCtrl.user);
 router.post(
   '/signup',
   [
