@@ -38,14 +38,12 @@ exports.user = async (req, res, next) => {
     );
     res.json(user);
   } catch (err) {
-    console.error(err.message);
     res.status(500).send('Server Error');
   }
 };
 
 exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
-  // console.log(errors);
   if (!errors.isEmpty()) {
     return res.status(400).json({
       errors: errors.array(),
@@ -143,7 +141,6 @@ exports.login = async (req, res, next) => {
       res.status(500).json('Server Error');
     }
   } else {
-    console.log('run');
     return res.status(400).json({
       errors: errors.array(),
     });
@@ -181,7 +178,9 @@ exports.forgotPassword = async (req, res, next) => {
         email: 'Please verify your email',
       });
     } catch (err) {
-      console.log(err);
+      res.status(404).json({
+        errors: err,
+      });
     }
   });
 };
@@ -207,7 +206,6 @@ exports.newPassword = async (req, res, next) => {
 
     const isMatched = await bcrypt.compare(req.body.password, NewUser.password);
     if (!isMatched) {
-      console.log('Your enter your old password ');
       return res.status(400).json({
         errors: [{ msg: 'Your enter your old password' }],
       });
