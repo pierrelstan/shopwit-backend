@@ -5,7 +5,6 @@ const Order = require('../models/order');
 // const Cart = require("../models/cart");1
 const User = require('../models/user');
 const TakeMyMoney = require('../utils/TakeMyMoney');
-let ITEM_PER_PAGE = 9;
 
 exports.createItem = (req, res, next) => {
   const { genre, imageUrl, title, quantityProducts, description } = req.body;
@@ -78,6 +77,7 @@ exports.getHeigthlastItems = (req, res, next) => {
 };
 
 exports.getPaginationItems = (req, res, next) => {
+  let ITEM_PER_PAGE = 8;
   let page = parseInt(req.params.page);
   let skip = (page - 1) * ITEM_PER_PAGE;
   Item.find()
@@ -135,20 +135,19 @@ exports.deleteItem = async (req, res, next) => {
   let itemById = await Item.findOne({ _id: req.params.id });
 
   const { userId } = itemById;
-  if (userId === req.user.userId) {
-    Item.findOneAndDelete({
-      _id: req.params.id,
-    })
-      .then(() => {
-        res.status(200).json({
-          message: 'Delete item successfully!',
-        });
-      })
-      .catch((error) => {
-        res.status(400).json({
-          error: error,
-        });
+  if (userId.equals(req.user.userId)) {
+    try {
+      await Item.findOneAndDelete({
+        _id: req.params.id,
       });
+      await res.status(200).json({
+        message: 'Delete item successfully!',
+      });
+    } catch (error) {
+      res.status(400).json({
+        error: error,
+      });
+    }
   } else {
     res.status(400).json({
       error: 'Item not belongs to you , access denied!',
@@ -157,7 +156,7 @@ exports.deleteItem = async (req, res, next) => {
 };
 
 exports.getAllItemsByUser = (req, res, next) => {
-  Item.find({ userId: req.user.userId })
+  Item.find({ userId: req.body.userId })
     .sort('-created')
     .then((item) => {
       res.status(201).json(item);
