@@ -7,7 +7,14 @@ const User = require('../models/user');
 const TakeMyMoney = require('../utils/TakeMyMoney');
 
 exports.createItem = (req, res, next) => {
-  const { genre, imageUrl, title, quantityProducts, description } = req.body;
+  const {
+    genre,
+    imageUrl,
+    title,
+    quantityProducts,
+    description,
+    userId,
+  } = req.body;
   let money = TakeMyMoney(req.body.price);
 
   const item = new Item({
@@ -17,7 +24,7 @@ exports.createItem = (req, res, next) => {
     imageUrl: imageUrl,
     price: money,
     quantityProducts: quantityProducts,
-    userId: req.user.userId,
+    userId: userId,
   });
   // save the data to mongodb
   item
@@ -96,8 +103,10 @@ exports.getPaginationItems = (req, res, next) => {
 
 exports.modifyItem = async (req, res, next) => {
   let money = TakeMyMoney(req.body.price);
-
-  if (req.user.userId !== req.body.userId) {
+  let id = req.params.id;
+  let itemUserById = Item.find({ _id: id });
+  const { userId } = itemUserById;
+  if (userId !== req.body.userId) {
     res.status(401).json({
       error: 'Item not belongs to you , access denied!',
     });
@@ -109,7 +118,7 @@ exports.modifyItem = async (req, res, next) => {
       price: money,
       imageUrl: req.body.imageUrl,
       quantityProducts: req.body.quantityProducts,
-      userId: req.user.userId,
+      userId: userId,
     });
 
     Item.updateOne(
@@ -135,20 +144,22 @@ exports.deleteItem = async (req, res, next) => {
   let itemById = await Item.findOne({ _id: req.params.id });
 
   const { userId } = itemById;
-  if (userId.equals(req.user.userId)) {
-    try {
-      await Item.findOneAndDelete({
-        _id: req.params.id,
-      });
-      await res.status(200).json({
-        message: 'Delete item successfully!',
-      });
-    } catch (error) {
-      res.status(400).json({
-        error: error,
-      });
+  try {
+    if (userId.equals(req.user.userId)) {
+      try {
+        await Item.findOneAndDelete({
+          _id: req.params.id,
+        });
+        await res.status(200).json({
+          message: 'Delete item successfully!',
+        });
+      } catch (error) {
+        res.status(400).json({
+          error: error,
+        });
+      }
     }
-  } else {
+  } catch (e) {
     res.status(400).json({
       error: 'Item not belongs to you , access denied!',
     });
