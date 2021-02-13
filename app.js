@@ -6,11 +6,12 @@ const mongoose = require('mongoose');
 var compression = require('compression');
 var helmet = require('helmet');
 require('dotenv').config();
-const itemRoutes = require('./routes/item');
+const itemRoutes = require('./routes/items');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
 const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
+const cartsRoutes = require('./routes/carts');
 
 const app = express();
 app.use(helmet());
@@ -60,5 +61,6 @@ app.use('/api/order', orderRoutes);
 app.use('/api/auth', userRoutes);
 app.use('/api/rating', ratingRoutes);
 app.use('/api/item', favoritesRoutes);
+app.use('/api', cartsRoutes);
 
 module.exports = app;
