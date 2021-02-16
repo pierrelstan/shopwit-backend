@@ -13,16 +13,19 @@ const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders:
+    'Access-Control-Allow-Headers,Access-Control-Allow-Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Origin,Cache-Control,Content-Type,X-Token,X-Refresh-Token',
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+};
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
-app.use(
-  cors({
-    origin: true,
-    methods: ['POST,DELETE,PUT,GET'],
-    credentials: true,
-  }),
-);
+app.use(cors(corsOptions));
 mongoose
   .connect(process.env.MONGODB_API_KEY, {
     useNewUrlParser: true,
