@@ -17,7 +17,7 @@ router.get('/:id', ItemCtrl.getOneItem);
 // edit item
 router.put('/:id', auth, ItemCtrl.modifyItem);
 // delete an item
-router.delete('/:id', auth, ItemCtrl.deleteItem);
+router.post('/item_id=:id', auth, ItemCtrl.deleteItem);
 router.get('/user/items/:id', auth, ItemCtrl.getAllItemsByUser);
 // search items
 router.get('/s/search?', ItemCtrl.searchItems);
