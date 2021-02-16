@@ -31,12 +31,12 @@ mongoose
     console.error(error);
   });
 
-app.use(
-  cors({
-    credentials: true,
-    origin: 'http://pierrelstan.github.io/shopwitapp',
-  }),
-);
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin: 'http://pierrelstan.github.io/shopwitapp',
+//   }),
+// );
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(
