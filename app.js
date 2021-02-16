@@ -47,7 +47,9 @@ app.use(
   }),
 );
 app.use((req, res, next) => {
-  res.header('Allow-Control-Allow-Origin: *');
+  res.header(
+    'Allow-Control-Allow-Origin: http://pierrelstan.github.io/shopwitapp',
+  );
   res.header('Access-Control-Methods', 'GET,PUT,POST,DELETE');
   res.header(
     'Access-Control-Allow-Headers',
