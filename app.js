@@ -13,19 +13,10 @@ const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
-// const corsOptions = {
-//   origin: '*',
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//   allowedHeaders:
-//     'Access-Control-Allow-Headers,Access-Control-Allow-Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Origin,Cache-Control,Content-Type,X-Token,X-Refresh-Token',
-//   credentials: true,
-//   preflightContinue: false,
-//   optionsSuccessStatus: 204,
-// };
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
-app.use('*', cors());
+app.use(cors());
 mongoose
   .connect(process.env.MONGODB_API_KEY, {
     useNewUrlParser: true,
@@ -49,7 +40,19 @@ app.use(
     parameterLimit: 50000,
   }),
 );
-
+app.use(function (req, res, next) {
+  res.header(
+    'Access-Control-Allow-Origin',
+    'http://pierrelstan.github.io/shopwitapp',
+  );
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json',
+  );
+  next();
+});
 app.use('/api/item', itemRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/auth', userRoutes);
