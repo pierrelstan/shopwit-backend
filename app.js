@@ -16,7 +16,13 @@ const cartsRoutes = require('./routes/carts');
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    methods: ['POST,DELETE,PUT,GET'],
+    credentials: true,
+  }),
+);
 mongoose
   .connect(process.env.MONGODB_API_KEY, {
     useNewUrlParser: true,
