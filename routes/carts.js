@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
-
 // const OrderCtrl = require("../controllers/order.js");
 const CartCtrl = require('../controllers/cart.js');
-
 const auth = require('../middleware/auth');
-
 // create an order
 // router.post("/new/order", OrderCtrl.postOrder);
 // add to cart
