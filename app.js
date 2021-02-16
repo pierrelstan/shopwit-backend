@@ -34,7 +34,7 @@ mongoose
 app.use(
   cors({
     credentials: true,
-    origin: 'http://pierrelstan.github.io',
+    origin: 'http://pierrelstan.github.io/shopwitapp',
   }),
 );
 app.use(bodyParser.urlencoded({ extended: true }));
