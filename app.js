@@ -16,7 +16,7 @@ const cartsRoutes = require('./routes/carts');
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
-
+app.use(cors());
 mongoose
   .connect(process.env.MONGODB_API_KEY, {
     useNewUrlParser: true,
@@ -30,13 +30,6 @@ mongoose
     console.log('Unable to connect to MONGODB ATLAS!');
     console.error(error);
   });
-
-app.use(
-  cors({
-    credentials: true,
-    origin: '*',
-  }),
-);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
