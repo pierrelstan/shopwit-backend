@@ -7,7 +7,7 @@ const itemSchema = mongoose.Schema({
   imageUrl: { type: String, require: true },
   price: { type: Number, require: true },
   quantityProducts: { type: Number, require: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', require: true },
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', require: true },
   ratings: { type: mongoose.Schema.ObjectId, ref: 'Rating' },
   rating: { type: Number },
   created: { type: Date, default: Date.now },
