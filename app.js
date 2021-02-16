@@ -31,12 +31,13 @@ mongoose
     console.error(error);
   });
 
-// app.use(
-//   cors({
-//     credentials: true,
-//     origin: 'http://pierrelstan.github.io/shopwitapp',
-//   }),
-// );
+app.use(
+  cors({
+    credentials: true,
+    origin: '*',
+  }),
+);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(
@@ -46,16 +47,7 @@ app.use(
     parameterLimit: 50000,
   }),
 );
-app.use((req, res, next) => {
-  res.header('Allow-Control-Allow-Origin: *');
-  res.header('Access-Control-Methods', 'GET,PUT,POST,DELETE');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Content-type,Authorization,Cache-Control',
-  );
 
-  next();
-});
 app.use('/api/item', itemRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/auth', userRoutes);
