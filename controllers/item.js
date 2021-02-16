@@ -1,8 +1,6 @@
 const Item = require('../models/item');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 const Order = require('../models/order');
-// const Cart = require("../models/cart");1
 const User = require('../models/user');
 const TakeMyMoney = require('../utils/TakeMyMoney');
 
@@ -13,9 +11,10 @@ exports.createItem = (req, res, next) => {
     title,
     quantityProducts,
     description,
-    userId,
+    price,
   } = req.body;
-  let money = TakeMyMoney(req.body.price);
+
+  let money = TakeMyMoney(price);
 
   const item = new Item({
     genre: genre,
@@ -24,10 +23,14 @@ exports.createItem = (req, res, next) => {
     imageUrl: imageUrl,
     price: money,
     quantityProducts: quantityProducts,
-    userId: userId,
+    creator: req.user.userId,
   });
   // save the data to mongodb
   item
+    .populate({
+      path: 'creator',
+      model: 'User',
+    })
     .save()
     .then(() => {
       res.status(201).json({
@@ -104,13 +107,10 @@ exports.getPaginationItems = (req, res, next) => {
 exports.modifyItem = async (req, res, next) => {
   let money = TakeMyMoney(req.body.price);
   let id = req.params.id;
-  let itemUserById = Item.find({ _id: id });
-  const { userId } = itemUserById;
-  if (userId !== req.body.userId) {
-    res.status(401).json({
-      error: 'Item not belongs to you , access denied!',
-    });
-  } else {
+  let itemCreator = await Item.findById({ _id: id });
+
+  const { creator } = itemCreator;
+  if (creator.equals(req.user.userId)) {
     const item = new Item({
       _id: req.params.id,
       title: req.body.title,
@@ -118,9 +118,8 @@ exports.modifyItem = async (req, res, next) => {
       price: money,
       imageUrl: req.body.imageUrl,
       quantityProducts: req.body.quantityProducts,
-      userId: userId,
+      creator: creator,
     });
-
     Item.updateOne(
       {
         _id: req.params.id,
@@ -137,29 +136,29 @@ exports.modifyItem = async (req, res, next) => {
           error: error,
         });
       });
+  } else {
+    res.status(400).json({
+      error: 'Item not belongs to you , access denied!',
+    });
   }
 };
 
 exports.deleteItem = async (req, res, next) => {
-  let itemById = await Item.findOne({ _id: req.params.id });
+  let token = req.headers['x-auth-token'];
+  let itemById = await Item.findById({ _id: req.params.id });
 
-  const { userId } = itemById;
-  try {
-    if (userId.equals(req.user.userId)) {
-      try {
-        await Item.findOneAndDelete({
-          _id: req.params.id,
-        });
-        await res.status(200).json({
-          message: 'Delete item successfully!',
-        });
-      } catch (error) {
-        res.status(400).json({
-          error: error,
-        });
-      }
+  let { creator } = itemById;
+  if (creator.equals(req.user.userId)) {
+    try {
+      await Item.findOneAndDelete({
+        _id: req.params.id,
+      });
+    } catch (error) {
+      res.status(400).json({
+        error: error,
+      });
     }
-  } catch (e) {
+  } else {
     res.status(400).json({
       error: 'Item not belongs to you , access denied!',
     });
@@ -167,7 +166,7 @@ exports.deleteItem = async (req, res, next) => {
 };
 
 exports.getAllItemsByUser = (req, res, next) => {
-  Item.find({ userId: req.body.userId })
+  Item.find({ creator: req.user.userId })
     .sort('-created')
     .then((item) => {
       res.status(201).json(item);
