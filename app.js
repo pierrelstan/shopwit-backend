@@ -13,15 +13,7 @@ const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
-const whitelist = ['http://localhost:3000', 'https://pierrelstan.github.io'];
-const corsOptions = {
-  origin: true,
-  credentials: true,
-};
-
 const app = express();
-app.use(cors(corsOptions));
-app.options('*', cors());
 app.use(helmet());
 app.use(compression()); //Compress all routes
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -35,26 +27,17 @@ app.use(
 );
 // Add headers
 app.use(function (req, res, next) {
-  // Website you wish to allow to connect
   res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header('Access-Control-Request-Headers, Content-Type, x-requested-with');
 
-  // Request methods you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, PATCH, DELETE',
-  );
-
-  // Request headers you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-Requested-With,content-type',
-  );
-
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-
-  // Pass to next layer of middleware
+  if (req.method === 'OPTIONS') {
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, PATCH, DELETE,PATCH',
+    );
+    return res.status(200).json({});
+  }
   next();
 });
 mongoose
