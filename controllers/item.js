@@ -60,6 +60,7 @@ exports.getOneItem = (req, res, next) => {
 };
 
 exports.getAllItem = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
   Item.find()
     .sort('-created')
     .then((items) => {
@@ -73,6 +74,7 @@ exports.getAllItem = (req, res, next) => {
 };
 
 exports.getHeigthlastItems = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
   Item.find()
     .sort('-created')
     .limit(8)
@@ -87,6 +89,7 @@ exports.getHeigthlastItems = (req, res, next) => {
 };
 
 exports.getPaginationItems = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
   let ITEM_PER_PAGE = 8;
   let page = parseInt(req.params.page);
   let skip = (page - 1) * ITEM_PER_PAGE;
@@ -166,6 +169,7 @@ exports.deleteItem = async (req, res, next) => {
 };
 
 exports.getAllItemsByUser = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
   Item.find({ creator: req.user.userId })
     .sort('-created')
     .then((item) => {
@@ -183,6 +187,7 @@ function escapeRegex(text) {
 }
 
 exports.searchItems = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
   const regex = new RegExp(escapeRegex(req.query.title), 'gi');
   Item.find(
     {
