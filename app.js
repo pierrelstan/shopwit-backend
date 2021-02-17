@@ -30,7 +30,8 @@ const corsOptions = {
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
-app.use(cors(corsOptions));
+app.use(cors());
+app.options('*', cors());
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -48,6 +49,7 @@ app.use(function (req, res, next) {
 
   next();
 });
+
 mongoose
   .connect(process.env.MONGODB_API_KEY, {
     useNewUrlParser: true,
