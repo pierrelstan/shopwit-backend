@@ -26,6 +26,7 @@ const corsOptions = {
 
 const app = express();
 app.use(cors(corsOptions));
+app.options('*', cors());
 app.use(helmet());
 app.use(compression()); //Compress all routes
 app.use(bodyParser.urlencoded({ extended: true }));
