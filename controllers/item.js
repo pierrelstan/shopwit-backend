@@ -63,7 +63,7 @@ exports.getAllItem = (req, res, next) => {
   Item.find()
     .sort('-created')
     .then((items) => {
-      return res.status(204).json(items);
+      return res.status(200).json(items);
     })
     .catch((error) => {
       res.status(400).json({
@@ -77,7 +77,7 @@ exports.getHeigthlastItems = (req, res, next) => {
     .sort('-created')
     .limit(8)
     .then((items) => {
-      return res.status(204).json(items);
+      return res.status(200).json(items);
     })
     .catch((error) => {
       res.status(400).json({
