@@ -13,6 +13,20 @@ const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
+const whitelist = [
+  'http://localhost:3000/',
+  'http://pierrelstan.github.io/shopwitapp/',
+];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+};
+
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
