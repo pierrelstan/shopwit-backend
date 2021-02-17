@@ -13,10 +13,7 @@ const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
-const whitelist = [
-  'http://localhost:3000',
-  'https://pierrelstan.github.io/shopwitapp',
-];
+const whitelist = ['http://localhost:3000', 'https://pierrelstan.github.io'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
