@@ -60,7 +60,7 @@ exports.getOneItem = (req, res, next) => {
 };
 
 exports.getAllItem = (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', 'https://pierrelstan.github.io');
   Item.find()
     .sort('-created')
     .then((items) => {
@@ -74,7 +74,7 @@ exports.getAllItem = (req, res, next) => {
 };
 
 exports.getHeigthlastItems = (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', 'https://pierrelstan.github.io');
   Item.find()
     .sort('-created')
     .limit(8)
@@ -89,7 +89,7 @@ exports.getHeigthlastItems = (req, res, next) => {
 };
 
 exports.getPaginationItems = (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', 'https://pierrelstan.github.io');
   let ITEM_PER_PAGE = 8;
   let page = parseInt(req.params.page);
   let skip = (page - 1) * ITEM_PER_PAGE;
@@ -187,7 +187,7 @@ function escapeRegex(text) {
 }
 
 exports.searchItems = (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', 'https://pierrelstan.github.io');
   const regex = new RegExp(escapeRegex(req.query.title), 'gi');
   Item.find(
     {
