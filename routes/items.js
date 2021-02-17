@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const ItemCtrl = require('../controllers/item.js');
 // const OrderCtrl = require("../controllers/order.js");
-
+const cors = require('cors');
 const auth = require('../middleware/auth');
 
 // retrieving all
-router.use('/all', ItemCtrl.getAllItem);
+router.use('/all', cors(), ItemCtrl.getAllItem);
 // retrieving heigth last item
-router.get('/lastproducts', ItemCtrl.getHeigthlastItems);
+router.get('/lastproducts', cors(), ItemCtrl.getHeigthlastItems);
 // create a new item
 router.post('/new', auth, ItemCtrl.createItem);
 // retrieving one item
@@ -19,9 +19,9 @@ router.put('/:id', auth, ItemCtrl.modifyItem);
 router.post('/item_id=:id', auth, ItemCtrl.deleteItem);
 router.get('/user/items/:id', auth, ItemCtrl.getAllItemsByUser);
 // search items
-router.get('/s/search?', ItemCtrl.searchItems);
+router.get('/s/search?', cors(), ItemCtrl.searchItems);
 
 // pagination items
-router.get('/page/:page', ItemCtrl.getPaginationItems);
+router.get('/page/:page', cors(), ItemCtrl.getPaginationItems);
 
 module.exports = router;
