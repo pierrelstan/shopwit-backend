@@ -13,10 +13,7 @@ const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
-const whitelist = [
-  'http://localhost:3000',
-  'https://pierrelstan.github.io/shopwitapp/#/',
-];
+const whitelist = ['http://localhost:3000', 'https://pierrelstan.github.io'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -28,27 +25,18 @@ const corsOptions = {
 };
 
 const app = express();
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(compression()); //Compress all routes
-app.use(cors());
-app.options('*', cors());
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-
-  // Request methods you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, PATCH, DELETE',
-  );
-
-  // Request headers you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers,X-Access-Token,XKey,Authorization',
-  );
-
-  next();
-});
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true,
+    parameterLimit: 50000,
+  }),
+);
 
 mongoose
   .connect(process.env.MONGODB_API_KEY, {
@@ -63,16 +51,6 @@ mongoose
     console.log('Unable to connect to MONGODB ATLAS!');
     console.error(error);
   });
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(
-  bodyParser.urlencoded({
-    limit: '50mb',
-    extended: true,
-    parameterLimit: 50000,
-  }),
-);
 
 app.use('/api/item', itemRoutes);
 app.use('/api/order', orderRoutes);
