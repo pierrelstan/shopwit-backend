@@ -14,8 +14,8 @@ const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
 const whitelist = [
-  'http://localhost:3000/',
-  'https://pierrelstan.github.io/shopwitapp/',
+  'http://localhost:3000',
+  'https://pierrelstan.github.io/shopwitapp',
 ];
 const corsOptions = {
   origin: function (origin, callback) {
@@ -30,7 +30,7 @@ const corsOptions = {
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
