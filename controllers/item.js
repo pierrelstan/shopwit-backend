@@ -63,7 +63,7 @@ exports.getAllItem = (req, res, next) => {
   Item.find()
     .sort('-created')
     .then((items) => {
-      return res.status(200).json(items);
+      res.status(200).json(items);
     })
     .catch((error) => {
       res.status(400).json({
@@ -77,7 +77,7 @@ exports.getHeigthlastItems = (req, res, next) => {
     .sort('-created')
     .limit(8)
     .then((items) => {
-      return res.status(200).json(items);
+      res.status(200).json(items);
     })
     .catch((error) => {
       res.status(400).json({
@@ -169,7 +169,7 @@ exports.getAllItemsByUser = (req, res, next) => {
   Item.find({ creator: req.user.userId })
     .sort('-created')
     .then((item) => {
-      return res.status(200).json(item);
+      res.status(200).json(item);
     })
     .catch((err) => {
       res.status(400).json({
@@ -191,7 +191,7 @@ exports.searchItems = (req, res, next) => {
     function (err, items) {
       if (err) res.status(401).json(err);
       else {
-        return res.status(201).json(items);
+        res.status(201).json(items);
       }
     },
   );
