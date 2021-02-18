@@ -29,7 +29,6 @@ app.use(
 app.use(function (req, res, next) {
   req.headers['x-request-id'];
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Headers', '*');
 
   if (req.method === 'OPTIONS') {
