@@ -25,23 +25,9 @@ app.use(
     parameterLimit: 50000,
   }),
 );
-// Add headers
-app.use(function (req, res, next) {
-  req.header('x-request-id');
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', '*');
-  res.header('Content-Type : application/json');
-  req.header('Referer');
-  if (req.method === 'OPTIONS') {
-    res.header(
-      'Access-Control-Allow-Methods',
-      'GET, POST, PUT, PATCH, DELETE,PATCH,OPTIONS',
-    );
+app.use(cors());
+app.options(cors());
 
-    return res.status(200).json({});
-  }
-  next();
-});
 mongoose
   .connect(process.env.MONGODB_API_KEY, {
     useNewUrlParser: true,
