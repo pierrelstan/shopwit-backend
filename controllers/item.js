@@ -60,6 +60,8 @@ exports.getOneItem = (req, res, next) => {
 };
 
 exports.getAllItem = (req, res, next) => {
+  res.header('Content-Type', 'application/json');
+  res.header('Access-Control-Allow-Origin', '*');
   Item.find()
     .sort('-created')
     .then((items) => {
@@ -73,7 +75,8 @@ exports.getAllItem = (req, res, next) => {
 };
 
 exports.getHeigthlastItems = (req, res, next) => {
-  console.log(res);
+  res.header('Content-Type', 'application/json');
+  res.header('Access-Control-Allow-Origin', '*');
   Item.find()
     .sort('-created')
     .limit(8)
@@ -85,6 +88,9 @@ exports.getHeigthlastItems = (req, res, next) => {
         error: error,
       });
     });
+  console.log();
+  // if (req.session.user) return next();
+  // return next(new NotAuthorizedError());
 };
 
 exports.getPaginationItems = (req, res, next) => {
@@ -167,6 +173,8 @@ exports.deleteItem = async (req, res, next) => {
 };
 
 exports.getAllItemsByUser = (req, res, next) => {
+  res.header('Content-Type', 'application/json');
+  res.header('Access-Control-Allow-Origin', '*');
   Item.find({ creator: req.user.userId })
     .sort('-created')
     .then((item) => {
@@ -184,6 +192,8 @@ function escapeRegex(text) {
 }
 
 exports.searchItems = (req, res, next) => {
+  res.header('Content-Type', 'application/json');
+  res.header('Access-Control-Allow-Origin', '*');
   const regex = new RegExp(escapeRegex(req.query.title), 'gi');
   Item.find(
     {
