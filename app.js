@@ -27,6 +27,7 @@ app.use(
 );
 // Add headers
 app.use(function (req, res, next) {
+  req.headers['x-request-id'];
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Headers', '*');
@@ -37,6 +38,7 @@ app.use(function (req, res, next) {
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, PATCH, DELETE,PATCH,OPTIONS',
     );
+
     return res.status(200).json({});
   }
   next();
