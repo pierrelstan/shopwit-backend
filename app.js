@@ -13,6 +13,16 @@ const ratingRoutes = require('./routes/rating');
 const favoritesRoutes = require('./routes/favorites');
 const cartsRoutes = require('./routes/carts');
 
+var allowlist = ['http://localhost:3000', 'https://pierrelstan.github.io'];
+var corsOptionsDelegate = function (req, callback) {
+  var corsOptions;
+  if (allowlist.indexOf(req.header('Origin')) !== -1) {
+    corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
+  } else {
+    corsOptions = { origin: false }; // disable CORS for this request
+  }
+  callback(null, corsOptions); // callback expects two parameters: error and options
+};
 const app = express();
 app.use(helmet());
 app.use(compression()); //Compress all routes
@@ -25,7 +35,7 @@ app.use(
     parameterLimit: 50000,
   }),
 );
-app.use(cors());
+app.use(cors(corsOptionsDelegate));
 app.options(cors());
 
 mongoose
