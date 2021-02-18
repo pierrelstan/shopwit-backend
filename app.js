@@ -27,13 +27,12 @@ app.use(
 );
 // Add headers
 app.use(function (req, res, next) {
-  req.headers['x-request-id'];
+  req.header('x-request-id');
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', '*');
+  res.header('Content-Type : application/json');
   req.header('Referer');
-
   if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', '*');
     res.header(
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, PATCH, DELETE,PATCH,OPTIONS',
