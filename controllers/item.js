@@ -62,8 +62,9 @@ exports.getOneItem = (req, res, next) => {
 exports.getAllItem = (req, res, next) => {
   res.header('Content-Type', 'application/json');
   res.header('Access-Control-Allow-Origin', '*');
-  Item.find()
+  Item.find({})
     .sort('-created')
+    .lean()
     .then((items) => {
       res.status(200).json(items);
     })
@@ -77,11 +78,13 @@ exports.getAllItem = (req, res, next) => {
 exports.getHeigthlastItems = (req, res, next) => {
   res.header('Content-Type', 'application/json');
   res.header('Access-Control-Allow-Origin', '*');
-  Item.find()
-    .sort('-created')
+  Item.find({})
     .limit(8)
+    .sort('-created')
+    .lean()
+
     .then((items) => {
-      res.status(200).json(items);
+      res.status(201).json(items);
     })
     .catch((error) => {
       res.status(400).json({
