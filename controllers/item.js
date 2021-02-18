@@ -73,6 +73,7 @@ exports.getAllItem = (req, res, next) => {
 };
 
 exports.getHeigthlastItems = (req, res, next) => {
+  console.log(res);
   Item.find()
     .sort('-created')
     .limit(8)
