@@ -31,7 +31,6 @@ exports.createItem = (req, res, next) => {
       path: 'creator',
       model: 'User',
     })
-    .lean()
     .save()
     .then(() => {
       res.status(201).json({
