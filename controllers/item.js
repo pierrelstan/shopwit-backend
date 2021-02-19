@@ -31,6 +31,7 @@ exports.createItem = (req, res, next) => {
       path: 'creator',
       model: 'User',
     })
+    .lean()
     .save()
     .then(() => {
       res.status(201).json({
@@ -48,6 +49,7 @@ exports.getOneItem = (req, res, next) => {
   Item.findOne({
     _id: req.params.id,
   })
+    .lean()
 
     .then((item) => {
       res.status(200).json(item);
@@ -82,7 +84,6 @@ exports.getHeigthlastItems = (req, res, next) => {
     .limit(8)
     .sort('-created')
     .lean()
-
     .then((items) => {
       res.status(201).json(items);
     })
@@ -136,6 +137,7 @@ exports.modifyItem = async (req, res, next) => {
       },
       item,
     )
+      .lean()
       .then(() => {
         res.status(201).json({
           message: 'Item Updated successfully!',
@@ -155,7 +157,7 @@ exports.modifyItem = async (req, res, next) => {
 
 exports.deleteItem = async (req, res, next) => {
   let token = req.headers['x-auth-token'];
-  let itemById = await Item.findById({ _id: req.params.id });
+  let itemById = await Item.findById({ _id: req.params.id }).lean();
 
   let { creator } = itemById;
   if (creator.equals(req.user.userId)) {
@@ -180,6 +182,7 @@ exports.getAllItemsByUser = (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   Item.find({ creator: req.user.userId })
     .sort('-created')
+    .lean()
     .then((item) => {
       res.status(200).json(item);
     })
@@ -208,5 +211,5 @@ exports.searchItems = (req, res, next) => {
         res.status(201).json(items);
       }
     },
-  );
+  ).lean();
 };
