@@ -1,19 +1,14 @@
 const express = require('express');
 const router = express.Router();
-
 const ItemCtrl = require('../controllers/item.js');
-// const OrderCtrl = require("../controllers/order.js");
-const CartCtrl = require('../controllers/cart.js');
-
 const auth = require('../middleware/auth');
-const { check, validationResult, body } = require('express-validator');
-
+const fileUpload = require('../middleware/file-uploads');
 // retrieving all
-router.use("/",ItemCtrl.getAllItem);
+router.get('/', ItemCtrl.getAllItem);
 // retrieving heigth last item
 router.get('/lastproducts', ItemCtrl.getHeigthlastItems);
 // create a new item
-router.post('/new', ItemCtrl.CreateItem);
+router.post('/new', fileUpload.single('image'), auth, ItemCtrl.createProduct);
 // retrieving one item
 router.get('/:id', ItemCtrl.getOneItem);
 // edit item
@@ -26,15 +21,5 @@ router.get('/s/search?', ItemCtrl.searchItems);
 
 // pagination items
 router.get('/page/:page', ItemCtrl.getPaginationItems);
-
-// create an order
-// router.post("/new/order", OrderCtrl.postOrder);
-// add to cart
-// router.post('/add-to-cart/:id', auth, CartCtrl.addToCart);
-
-// router.get('/cart/:id', auth, CartCtrl.findCartByUserId);
-
-// router.post('/removeCart/:id', auth, CartCtrl.removeCartById);
-// router.put('/updateCart/:id', auth, CartCtrl.updateCart);
 
 module.exports = router;
