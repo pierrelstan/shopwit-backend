@@ -26,7 +26,6 @@ exports.addToFavorites = (req, res, next) => {
     function (err, alreadyExistCart) {
       if (err) console.log(err);
       if (alreadyExistCart) {
-        console.log('This has already been saved');
         return res.status(401).json({
           errors: [{ msg: 'This has already been saved' }],
         });
