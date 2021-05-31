@@ -6,6 +6,6 @@ const auth = require('../middleware/auth');
 
 router.post('/:id', auth, FavoritesCtrl.addToFavorites);
 router.get('/:id', auth, FavoritesCtrl.findFavoritesByUserId);
-router.post('/:id', auth, FavoritesCtrl.removeFavoritesById);
+router.post('/remove/:id', auth, FavoritesCtrl.removeFavoritesById);
 
 module.exports = router;
