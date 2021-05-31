@@ -1,7 +1,6 @@
 const Rating = require('../models/rating');
 
 exports.createRatingItem = (req, res, next) => {
-  console.log(req);
   let rating = new Rating({
     rating: req.body.rating,
     userId: req.user.userId,

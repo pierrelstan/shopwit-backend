@@ -136,14 +136,11 @@ exports.login = async (req, res, next) => {
             errors: err,
           });
         }
-
-        console.log(token);
         res.json({
           token,
         });
       });
     } catch (error) {
-      console.log(error.message);
       res.status(500).json('Server Error');
     }
   } else {
@@ -254,12 +251,10 @@ exports.newPassword = async (req, res, next) => {
       res.status(500).json('Server Error');
     }
   } catch (err) {
-    console.log(err);
     res.status(500).json('Server Error');
   }
 };
 exports.getOneUser = (req, res, next) => {
-  console.log(res);
   let user = User.findById({
     _id: req.user.userId,
   });

@@ -1,12 +1,13 @@
-const mongoose = require('mongoose');
+const  mongoose =require('mongoose');
+const { Schema } = mongoose;
 
-const itemShema = mongoose.Schema({
-  genre: { type: String, require: true },
-  title: { type: String, require: true },
-  description: { type: String, require: true },
-  imageUrl: { type: String, require: true },
-  price: { type: Number, require: true },
-  quantityProducts: { type: Number, require: true },
+const itemShema = Schema({
+  // genre: { type: String, require: true },
+  title: { type: String },
+  description: { type: String },
+  imageUrl: { type: String },
+  price: { type: Number },
+  quantityProducts: { type: Number },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', require: true },
   ratings: { type: mongoose.Schema.ObjectId, ref: 'Rating' },
   rating: { type: Number },

@@ -2,6 +2,7 @@ const http = require('http');
 const serverless = require('serverless-http');
 const app = require('./app.js');
 
-app.set('port', process.env.PORT || 4000);
+app.set('port', process.env.PORT);
 const server = http.createServer(app);
-server.listen(process.env.PORT || 4000);
+server.listen(process.env.PORT);
+console.log( process.env.PORT)

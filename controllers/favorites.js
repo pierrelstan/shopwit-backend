@@ -76,7 +76,6 @@ exports.findFavoritesByUserId = (req, res, next) => {
   favorite
     .then((cart) => {
       let ar = [];
-      console.log(cart);
       cart.filter((el) => {
         if (el.item !== null) ar.push(el);
       });

@@ -45,7 +45,6 @@ exports.createOrder = async (req, res, next) => {
       payment_method: id,
       confirm: true,
     });
-    console.log(order);
     order.save();
     res.status(200).json({
       paymentIntent,

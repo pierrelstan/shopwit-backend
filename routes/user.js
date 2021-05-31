@@ -51,7 +51,7 @@ router.post(
   }),
   UserCtrl.newPassword,
 );
-router.get('/user/:id', auth, UserCtrl.getOneUser);
+router.get('/me/:id', auth, UserCtrl.getOneUser);
 router.put('/user/:id/edit', auth, UserCtrl.updateOneUser);
 router.get('/user/populate/:id', auth, UserCtrl.getAllUserItemPopulate);
 // router.get("/user/items/:id", UserCtrl.getOneUserItems);

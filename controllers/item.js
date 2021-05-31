@@ -1,46 +1,55 @@
 const Item = require('../models/item');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 const Order = require('../models/order');
 // const Cart = require("../models/cart");
 const User = require('../models/user');
 const TakeMyMoney = require('../utils/TakeMyMoney');
 let ITEM_PER_PAGE = 9;
 
-exports.createItem = (req, res, next) => {
-  const { genre, imageUrl, title, quantityProducts, description } = req.body;
-  let money = TakeMyMoney(req.body.price);
+exports.CreateItem = async (req, res, next) => {
+console.log(req)
+res.send({
+  name:"stanley"
+})
 
-  const item = new Item({
-    genre: genre,
-    title: title,
-    description: description,
-    imageUrl: imageUrl,
-    price: money,
-    quantityProducts: quantityProducts,
-    userId: req.user.userId,
-  });
-  // save the data to mongodb
-  item
-    .save()
-    .then(() => {
-      res.status(201).json({
-        message: 'Post saved successfully!',
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
-    });
+  console.log("call")
+//   try {
+//     console.log(req.query)
+//     console.log(req)
+//     const { genre, imageUrl, title, quantityProducts, description } = req.body;
+//     let money = TakeMyMoney(req.body.price);
+//     const item = new Item({
+//       genre: genre,
+//       title: title,
+//       description: description,
+//       imageUrl: imageUrl,
+//       price: money,
+//       quantityProducts: quantityProducts,
+//       userId: req.user.userId,
+//     });
+//     // save the data to mongodb
+//    await item.save()
+//    console.log("saved")
+//  return res.status(201).json({
+//     message: 'Item create successfully!',
+//   });
+//   }
+//   catch(error){
+//     console.log(error)
+//     if(error) { res.status(400).json({
+//       error: error,
+//     });
+//     }
+//     }
+
 };
 
 exports.getOneItem = (req, res, next) => {
   Item.findOne({
     _id: req.params.id,
   })
-
+console.log(req.params)
     .then((item) => {
+      // console.log(item)
       res.status(200).json(item);
     })
     .catch((error) => {
@@ -50,7 +59,7 @@ exports.getOneItem = (req, res, next) => {
     });
 };
 
-exports.getAllItem = (req, res, next) => {
+exports.getAllItem = (req, res, next) => { 
   Item.find()
     .sort('-created')
     .then((items) => {
@@ -64,7 +73,6 @@ exports.getAllItem = (req, res, next) => {
 };
 
 exports.getHeigthlastItems = (req, res, next) => {
-  console.log('state');
   Item.find()
     .sort('-created')
     .limit(8)
