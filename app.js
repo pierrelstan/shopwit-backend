@@ -1,4 +1,3 @@
-
 const express = require('express');
 var path = require('path');
 const cors = require('cors');
@@ -31,7 +30,7 @@ mongoose
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false
-}
+  }
   )
   .then(() => {
     console.log('Successfully connected to MONGODB ATLAS!');
@@ -40,7 +39,6 @@ mongoose
     console.log('Unable to connect to MONGODB ATLAS!');
     console.error(error);
   });
-
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -62,10 +60,11 @@ app.use((req, res, next) => {
   next();
 });
 app.use('/api/items', itemRoutes);
-app.use("/api/carts",cartRoutes)
+app.use('/api/carts', cartRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('api/auth', userRoutes);
+app.use('/api/auth', userRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/favorites', favoritesRoutes);
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 module.exports = app;
