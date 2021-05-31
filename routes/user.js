@@ -3,10 +3,12 @@ const router = express.Router();
 const UserCtrl = require('../controllers/user');
 const auth = require('../middleware/auth');
 const { check, body } = require('express-validator');
+const fileUpload = require('../middleware/file-uploads');
 
 router.get('/', auth, UserCtrl.user);
 router.post(
   '/signup',
+  fileUpload.single('image'),
   [
     check('firstname', 'First Name is required').not().isEmpty(),
     check('lastname', 'Last Name is required').not().isEmpty(),
@@ -52,7 +54,12 @@ router.post(
   UserCtrl.newPassword,
 );
 router.get('/me/:id', auth, UserCtrl.getOneUser);
-router.put('/user/:id/edit', auth, UserCtrl.updateOneUser);
+router.put(
+  '/user/:id/edit',
+  fileUpload.single('image'),
+  auth,
+  UserCtrl.updateOneUser
+);
 router.get('/user/populate/:id', auth, UserCtrl.getAllUserItemPopulate);
 // router.get("/user/items/:id", UserCtrl.getOneUserItems);
 
