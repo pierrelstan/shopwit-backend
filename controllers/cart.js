@@ -26,7 +26,6 @@ exports.addToCart = (req, res, next) => {
     function (err, alreadyExistCart) {
       if (err) console.log(err);
       if (alreadyExistCart) {
-        console.log('This has already been saved');
         return res.status(401).json({
           errors: [{ msg: 'This has already been saved' }],
         });
@@ -76,7 +75,6 @@ exports.findCartByUserId = (req, res, next) => {
   cart
     .then((cart) => {
       let ar = [];
-      console.log(cart);
       cart.filter((el) => {
         if (el.item !== null) ar.push(el);
       });
