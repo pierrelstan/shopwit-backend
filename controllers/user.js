@@ -44,7 +44,6 @@ exports.user = async (req, res, next) => {
 
 exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
-  // console.log(errors);
   if (!errors.isEmpty()) {
     return res.status(400).json({
       errors: errors.array(),
@@ -72,7 +71,7 @@ exports.signup = async (req, res, next) => {
     user = new User({
       firstname,
       lastname,
-      avatar,
+      avatar: req.file.path,
       email,
       password,
       confirmPassword,
@@ -144,7 +143,6 @@ exports.login = async (req, res, next) => {
       res.status(500).json('Server Error');
     }
   } else {
-    console.log('run');
     return res.status(400).json({
       errors: errors.array(),
     });
@@ -208,7 +206,6 @@ exports.newPassword = async (req, res, next) => {
 
     const isMatched = await bcrypt.compare(req.body.password, NewUser.password);
     if (!isMatched) {
-      console.log('Your enter your old password ');
       return res.status(400).json({
         errors: [{ msg: 'Your enter your old password' }],
       });
@@ -247,7 +244,6 @@ exports.newPassword = async (req, res, next) => {
       await NewUser.save();
       return await usser.save();
     } catch (err) {
-      console.log(err);
       res.status(500).json('Server Error');
     }
   } catch (err) {
@@ -260,7 +256,6 @@ exports.getOneUser = (req, res, next) => {
   });
   user.exec(function (err, user) {
     if (err) {
-      console.log(err);
     } else {
       res.status(200).json(user);
     }
@@ -270,7 +265,7 @@ exports.getOneUser = (req, res, next) => {
 exports.updateOneUser = (req, res, next) => {
   const user = new User({
     _id: req.params.id,
-    avatar: req.body.avatar,
+    avatar: !req.file ? req.body.avatar : req.file.path,
     firstname: req.body.firstname,
     lastname: req.body.lastname,
     location: req.body.location,
