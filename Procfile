@@ -1,2 +1,1 @@
-
-web: node dist/main.js
+web: node server.js

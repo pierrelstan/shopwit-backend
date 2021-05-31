@@ -1,7 +1,7 @@
 const  mongoose =require('mongoose');
 const { Schema } = mongoose;
 
-const itemShema = Schema({
+const itemSchema = Schema({
   // genre: { type: String, require: true },
   title: { type: String },
   description: { type: String },
@@ -15,4 +15,4 @@ const itemShema = Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Item', itemShema);
+module.exports = mongoose.model('Item', itemSchema);

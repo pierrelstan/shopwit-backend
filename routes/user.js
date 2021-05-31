@@ -6,6 +6,7 @@ const { check, body } = require('express-validator');
 const fileUpload = require('../middleware/file-uploads');
 
 router.get('/', auth, UserCtrl.user);
+
 router.post(
   '/signup',
   fileUpload.single('image'),

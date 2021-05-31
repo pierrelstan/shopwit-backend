@@ -1,10 +1,11 @@
 const Item = require('../models/item');
-// const User = require("../models/user");
 const Favorites = require('../models/favorites');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 
 exports.addToFavorites = (req, res, next) => {
+  let userId = req.body.userId;
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -21,7 +22,7 @@ exports.addToFavorites = (req, res, next) => {
   Favorites.findOne(
     {
       item: ItemId,
-      userId: req.user.userId,
+      userId: userId,
     },
     function (err, alreadyExistCart) {
       if (err) console.log(err);
@@ -35,7 +36,7 @@ exports.addToFavorites = (req, res, next) => {
             const favorite = new Favorites({
               quantity: 1,
               item: item._id,
-              userId: req.user.userId,
+              userId: userId,
               update: false,
               isAddedToCart: true,
             });
@@ -65,9 +66,8 @@ exports.addToFavorites = (req, res, next) => {
 };
 
 exports.findFavoritesByUserId = (req, res, next) => {
-  let id = req.user.userId;
-  let favorite = Favorites.find({ userId: id });
-
+  let userId = req.params.id;
+  let favorite = Favorites.find({ userId: userId });
   favorite.populate({
     path: 'item',
     model: 'Item',
@@ -87,20 +87,33 @@ exports.findFavoritesByUserId = (req, res, next) => {
     });
 };
 
-exports.removeFavoritesById = (req, res, next) => {
-  const productId = req.params.id;
-  let favorite = Favorites.findOneAndDelete({
-    _id: productId,
-  });
-  favorite
-    .then((d) => {
-      res.status(201).json({
-        message: 'Delete successfuly !',
+exports.removeFavoritesById = async (req, res, next) => {
+  try {
+    let id = req.body.userId;
+    let favoriteById = await Favorites.findOne({ _id: req.params.id });
+    const { userId } = favoriteById;
+    if (userId === id) {
+      try {
+        const productId = req.params.id;
+        await Favorites.findOneAndDelete({
+          _id: productId,
+        });
+        await res.status(201).json({
+          message: 'Delete successfuly !',
+        });
+      } catch (error) {
+        await res.status(404).json({
+          error: error,
+        });
+      }
+    } else {
+      await res.status(400).json({
+        error: 'Item not belongs to you , access denied!',
       });
-    })
-    .catch(() => {
-      res.status(404).json({
-        error: error,
-      });
+    }
+  } catch (error) {
+    await res.status(400).json({
+      error: error,
     });
+  }
 };

@@ -32,12 +32,12 @@ let transporter = nodemailer.createTransport(
 
 exports.user = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.userId).select(
-      '-password -confirmPassword',
+    let userId = req.params.id;
+    const user = await User.findById(userId).select(
+      '-password -confirmPassword -_id',
     );
     res.json(user);
   } catch (err) {
-    console.error(err.message);
     res.status(500).send('Server Error');
   }
 };
@@ -49,7 +49,6 @@ exports.signup = async (req, res, next) => {
       errors: errors.array(),
     });
   }
-
   const { firstname, lastname, password, confirmPassword, email } = req.body;
   try {
     // see if user exists
@@ -104,7 +103,6 @@ exports.signup = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   const errors = validationResult(req);
-
   if (errors.isEmpty()) {
     const { password, email } = req.body;
     try {
@@ -180,7 +178,9 @@ exports.forgotPassword = async (req, res, next) => {
         email: 'Please verify your email',
       });
     } catch (err) {
-      console.log(err);
+      res.status(404).json({
+        errors: err,
+      });
     }
   });
 };
