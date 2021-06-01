@@ -3,18 +3,24 @@ const jwt = require('jsonwebtoken');
 const Order = require('../models/order');
 const User = require('../models/user');
 const TakeMyMoney = require('../utils/TakeMyMoney');
+const cloudinary = require('../middleware/cloudinary');
 
 exports.createProduct = async (req, res, next) => {
-  const { genre, imageUrl, title, quantity, description } = req.body;
+
+  const { genre, title, quantity, description } = req.body;
+  const result = await  cloudinary.uploader.upload(req.file.path,{
+    upload_preset:"ecommerce"
+  })
   let money = TakeMyMoney(req.body.price);
   let item = new Item({
     genre: genre,
     title: title,
     description: description,
-    imageUrl: !req.file ? imageUrl : req.file.path ,
+    imageUrl: result.secure_url ,
+    cloudinary_id:result.public_id,
     price: money,
     quantityProducts: quantity,
-    creator: req.user.userId,
+   userId: req.user.userId,
   });
   item.save((error, data) => {
     if (error) {
@@ -94,12 +100,16 @@ exports.getPaginationItems = (req, res, next) => {
 exports.modifyItem = async (req, res, next) => {
   let money = TakeMyMoney(req.body.price);
   let id = req.params.id;
+  const result = await cloudinary.uploader.upload(req.file.path,{
+    upload_preset:"ecommerce"
+  })
     const item = new Item({
       _id: id,
       title: req.body.title,
       description: req.body.description,
       price: money,
-      imageUrl: !req.file ? req.body.imageUrl :  req.file.path,
+      imageUrl: result.secure_url ,
+      cloudinary_id:result.public_id,
       quantityProducts: req.body.quantity,
       userId: req.user.userId
     });
@@ -123,12 +133,12 @@ exports.modifyItem = async (req, res, next) => {
  
 };
 
-exports.deleteItem = async (req, res, next) => {
-  let token = req.headers['x-auth-token'];
+  exports.deleteItem = async (req, res, next) => {
   let itemById = await Item.findById({ _id: req.params.id }).lean();
+ await cloudinary.uploader.destroy(itemById.cloudinary_id)
 
-  let { creator } = itemById;
-  if (creator.equals(req.user.userId)) {
+  let { userId } = itemById;
+  if (userId.equals(req.user.userId)) {
     try {
       await Item.findOneAndDelete({
         _id: req.params.id,
