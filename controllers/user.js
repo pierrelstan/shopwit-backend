@@ -10,6 +10,8 @@ const Cart = require('../models/cart');
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
+const cloudinary = require('../middleware/cloudinary');
+
 
 let transporter = nodemailer.createTransport(
   // sendGridTransport({
@@ -67,10 +69,11 @@ exports.signup = async (req, res, next) => {
       r: 'pg',
       d: 'mm',
     });
+    
     user = new User({
       firstname,
       lastname,
-      avatar: req.file.path,
+      avatar,
       email,
       password,
       confirmPassword,
@@ -262,10 +265,14 @@ exports.getOneUser = (req, res, next) => {
   });
 };
 
-exports.updateOneUser = (req, res, next) => {
+exports.updateOneUser = async (req, res, next) => {
+  const result = await  cloudinary.uploader.upload(req.file.path,{
+    upload_preset:"ecommerce"
+  })
   const user = new User({
     _id: req.params.id,
-    avatar: !req.file ? req.body.avatar : req.file.path,
+     avatar: result.secure_url ,
+    cloudinary_id:result.public_id,
     firstname: req.body.firstname,
     lastname: req.body.lastname,
     location: req.body.location,
