@@ -14,6 +14,7 @@ const userShema = mongoose.Schema({
   password: { type: String, require: true },
   avatar: { type: String },
   active: { type: Boolean, default: true },
+  cloudinary_id: {type: String},
   role: { type: String, enum: ['admin', 'user'], default: 'user' },
   permission: [
     {
