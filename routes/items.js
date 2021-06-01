@@ -3,7 +3,6 @@ const router = express.Router();
 const ItemCtrl = require('../controllers/item.js');
 const auth = require('../middleware/auth');
 const fileUpload = require('../middleware/file-uploads');
-
 // retrieving all
 router.get('/', ItemCtrl.getAllItem);
 // retrieving heigth last item
