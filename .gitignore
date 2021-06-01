@@ -5,3 +5,4 @@ npm-debug.log
 functions
 
 /uploads/images
+.prettierrc.json
