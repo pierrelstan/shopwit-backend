@@ -11,8 +11,10 @@ const itemSchema = Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', require: true },
   ratings: { type: mongoose.Schema.ObjectId, ref: 'Rating' },
   rating: { type: Number },
+  cloudinary_id : {type: String},
   created: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
+
 });
 
 module.exports = mongoose.model('Item', itemSchema);
