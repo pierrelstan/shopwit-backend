@@ -114,7 +114,11 @@ exports.login = async (req, res, next) => {
             });
             if (!user) {
                 return res.status(400).json({
-                    errors: [{ msg: 'Please enter your correct email' }],
+                    errors: [
+                        {
+                            msg: 'There was a problem logging in. Check your email and password or create an account.',
+                        },
+                    ],
                 });
             }
             const isMatched = await bcrypt.compare(password, user.password);
