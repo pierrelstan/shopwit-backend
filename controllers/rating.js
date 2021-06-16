@@ -1,5 +1,6 @@
 const Rating = require('../models/rating');
 const user = require('../models/user');
+const { ObjectId } = require('bson');
 
 exports.createRatingItem = async (req, res, next) => {
     // see if user exists
@@ -12,14 +13,14 @@ exports.createRatingItem = async (req, res, next) => {
             rating: req.body.rating,
         };
         if (singleRating) {
-            let rating = await Rating.updateOne(
+            await Rating.updateOne(
                 {
                     item: req.params.id,
+                    userId: req.user.userId,
                 },
                 data
             );
-            console.log(rating);
-            res.status(201).json({
+            return res.status(201).json({
                 message: 'Rate Updated successfully!',
             });
         } else {
@@ -50,14 +51,21 @@ exports.createRatingItem = async (req, res, next) => {
     }
 };
 
-exports.findRatingsByUserId = (req, res, next) => {
-    let ratings = Rating.findOne({ item: req.params.id });
-
-    ratings.exec(function (err, rating) {
-        if (err)
-            res.status(404).json({
-                error: error,
+exports.findRatingsByUserId = async (req, res, next) => {
+    try {
+        let ratings = await Rating.findOne({
+            item: req.params.id,
+            userId: req.user.userId,
+        }).select('rating');
+        res.status(201).json(ratings);
+    } catch (error) {
+        if (error) {
+            res.status(201).json({
+                rating: 0,
             });
-        res.status(201).json(rating);
-    });
+        }
+        res.status(404).json({
+            error: error,
+        });
+    }
 };
