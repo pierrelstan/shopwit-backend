@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
 
 exports.addToCart = (req, res, next) => {
   const errors = validationResult(req);
-  let userId = req.user.userId;
+  let userId = req.body.userId;
 
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -15,16 +15,15 @@ exports.addToCart = (req, res, next) => {
   }
 
   let ItemId = req.params.id;
-  let item = Item.findOne({
+  let item = Item.findById({
     _id: ItemId,
   });
+
   // find if cart already exist for the user
   Cart.findOne(
-    {
-      item: ItemId,
-      userId: userId,
-    },
+    { item: ItemId, userId: userId },
     function (err, alreadyExistCart) {
+      console.log(alreadyExistCart);
       if (err) console.log(err);
       if (alreadyExistCart) {
         return res.status(401).json({
@@ -40,12 +39,14 @@ exports.addToCart = (req, res, next) => {
               update: false,
               isAddedToCart: true,
             });
-            cart({
-              path: 'item',
-              model: 'Item',
-            })
+            cart
+              .populate({
+                path: 'item',
+                model: 'Item',
+              })
               .save()
               .then((carts) => {
+                console.log(cart);
                 res.status(201).json(carts);
               })
               .catch((error) => {
@@ -89,7 +90,7 @@ exports.findCartByUserId = (req, res, next) => {
 
 exports.updateCart = async (req, res, next) => {
   let id = req.user.userId;
-  let cartUserId = await Cart.findOne({ _id: req.params.id });
+  let cartUserId = await Cart.findById({ _id: req.params.id });
   const { userId } = cartUserId;
   if (userId === id) {
     try {
