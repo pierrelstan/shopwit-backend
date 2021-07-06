@@ -94,6 +94,7 @@ exports.queryAllRatingsAverage = async (req, res, next) => {
         as: 'item',
       },
     },
+    { $limit: 8 },
   ];
   try {
     let ratings = await Rating.aggregate(pipeline);
