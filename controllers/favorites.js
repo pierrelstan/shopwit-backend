@@ -15,7 +15,7 @@ exports.addToFavorites = (req, res, next) => {
   }
 
   let ItemId = req.params.id;
-  let item = Item.findOne({
+  let item = Item.findById({
     _id: ItemId,
   });
   // find if cart already exist for the user
