@@ -50,9 +50,8 @@ mongoose
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true,
-    useFindAndModify: false
-  }
-  )
+    useFindAndModify: false,
+  })
   .then(() => {
     console.log('Successfully connected to MONGODB ATLAS!');
   })
