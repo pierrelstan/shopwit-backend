@@ -187,42 +187,42 @@ exports.getPaginationItems = (req, res, next) => {
 };
 
 exports.modifyItem = async (req, res, next) => {
-  let money = TakeMyMoney(req.body.price);
-  let id = req.params.id;
-  const result = await cloudinary.uploader.upload(req.file.path, {
-    upload_preset: 'ecommerce',
-  });
-  const item = new Item({
-    _id: id,
-    title: req.body.title,
-    description: req.body.description,
-    price: money,
-    imageUrl: result.secure_url,
-    cloudinary_id: result.public_id,
-    quantityProducts: req.body.quantity,
-    userId: req.user.userId,
-  });
-  Item.updateOne(
-    {
-      _id: req.params.id,
-    },
-    item,
-  )
-    .lean()
-    .then(() => {
-      res.status(201).json({
-        message: 'Item Updated successfully!',
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
+  try {
+    let id = req.params.id;
+    let queryItem = await Item.findById(id);
+    let obj = JSON.parse(JSON.stringify(req.body));
+
+    let filePath = !req.file ? obj.image : req.file.path;
+
+    const result = await cloudinary.uploader.upload(filePath, {
+      upload_preset: 'ecommerce',
     });
+
+    let money = TakeMyMoney(obj.price || queryItem.price);
+    const item = {
+      _id: id,
+      title: obj.title || queryItem.title,
+      description: obj.description || queryItem.description,
+      price: money,
+      imageUrl: obj.imageUrl || result.secure_url,
+      cloudinary_id: result.public_id || queryItem.cloudinary_id,
+      quantityProducts: obj.quantity || queryItem.quantityProducts,
+      userId: req.user.userId || queryItem.userId,
+    };
+    let newItem = await Item.findByIdAndUpdate(req.params.id, item, {
+      new: true,
+    }).lean();
+    res.status(201).json({
+      message: 'Item Updated successfully!',
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error,
+    });
+  }
 };
 
 exports.deleteItem = async (req, res, next) => {
-  console.log(req.params.id);
   let itemById = await Item.findById({ _id: req.params.id }).lean();
   await cloudinary.uploader.destroy(itemById.cloudinary_id);
 
