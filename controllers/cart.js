@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
 
 exports.addToCart = (req, res, next) => {
   const errors = validationResult(req);
-  let userId = req.body.userId;
+  let userId = req.user.userId;
 
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -40,11 +40,10 @@ exports.addToCart = (req, res, next) => {
               update: false,
               isAddedToCart: true,
             });
-            cart
-              .populate({
-                path: 'item',
-                model: 'Item',
-              })
+            cart({
+              path: 'item',
+              model: 'Item',
+            })
               .save()
               .then((carts) => {
                 res.status(201).json(carts);
@@ -66,7 +65,7 @@ exports.addToCart = (req, res, next) => {
 };
 
 exports.findCartByUserId = (req, res, next) => {
-  let id = req.params.id;
+  let id = req.user.userId;
   let cart = Cart.find({ userId: id });
 
   cart.populate({
@@ -89,7 +88,7 @@ exports.findCartByUserId = (req, res, next) => {
 };
 
 exports.updateCart = async (req, res, next) => {
-  let id = req.body.userId;
+  let id = req.user.userId;
   let cartUserId = await Cart.findOne({ _id: req.params.id });
   const { userId } = cartUserId;
   if (userId === id) {
@@ -126,13 +125,12 @@ exports.updateCart = async (req, res, next) => {
 };
 
 exports.removeCartById = async (req, res, next) => {
-  let id = req.body.userId;
+  let id = req.user.userId;
   let cartUserId = await Cart.findOne({ _id: req.params.id });
   const { userId } = cartUserId;
   try {
     if (userId === id) {
       const productId = req.params.id;
-
       try {
         await Cart.findOneAndDelete({
           _id: productId,
