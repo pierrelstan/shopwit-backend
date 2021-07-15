@@ -271,46 +271,63 @@ exports.getOneUser = (req, res, next) => {
 exports.updateOneUser = async (req, res, next) => {
   try {
     let user = await User.findById(req.params.id);
-    // Delete image from cloudinary
-    if (user.cloudinary_id) {
-      await cloudinary.uploader.destroy(user.cloudinary_id);
+    let obj = JSON.parse(JSON.stringify(req.body));
+
+    let filePath = req.file && req.file.path;
+
+    if (filePath) {
+      if (user.cloudinary_id) {
+        await cloudinary.uploader.destroy(user.cloudinary_id);
+        // Upload image to cloudinary
+        const result = await cloudinary.uploader.upload(filePath, {
+          upload_preset: 'ecommerce',
+        });
+
+        const data = {
+          firstname: obj.firstname || user.firstname,
+          lastname: obj.lastname || user.lastname,
+          location: obj.location || user.location,
+          avatar: result.secure_url || user.avatar,
+          cloudinary_id: result.public_id || user.cloudinary_id,
+        };
+        user = await User.findByIdAndUpdate(req.params.id, data, {
+          new: true,
+        });
+        return res.status(201).json({
+          message: 'User Updated successfully!',
+        });
+      }
       // Upload image to cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path, {
+      const result = await cloudinary.uploader.upload(filePath, {
         upload_preset: 'ecommerce',
-        public_id: `${Date.now()}`,
       });
 
       const data = {
-        firstname: req.body.firstname || user.firstname,
-        lastname: req.body.lastname || user.lastname,
-        location: req.body.location || user.location,
+        firstname: obj.firstname || user.firstname,
+        lastname: obj.lastname || user.lastname,
+        location: obj.location || user.location,
         avatar: result.secure_url || user.avatar,
         cloudinary_id: result.public_id || user.cloudinary_id,
       };
       user = await User.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
-      res.status(201).json({
+      return res.status(201).json({
         message: 'User Updated successfully!',
       });
     }
-    // Upload image to cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      upload_preset: 'ecommerce',
-      public_id: `${Date.now()}`,
-    });
 
     const data = {
       firstname: req.body.firstname || user.firstname,
       lastname: req.body.lastname || user.lastname,
       location: req.body.location || user.location,
-      avatar: result.secure_url || user.avatar,
-      cloudinary_id: result.public_id || user.cloudinary_id,
+      avatar: user.avatar,
+      cloudinary_id: user.cloudinary_id,
     };
     user = await User.findByIdAndUpdate(req.params.id, data, {
       new: true,
     });
-    res.status(201).json({
+    return res.status(201).json({
       message: 'User Updated successfully!',
     });
   } catch (err) {
