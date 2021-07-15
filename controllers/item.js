@@ -8,13 +8,13 @@ const cloudinary = require('../middleware/cloudinary');
 const { ObjectId } = require('bson');
 
 exports.createProduct = async (req, res, next) => {
-  const { genre, title, quantity, description } = req.body;
+  const { title, quantity, description, gender } = req.body;
   const result = await cloudinary.uploader.upload(req.file.path, {
     upload_preset: 'ecommerce',
   });
   let money = TakeMyMoney(req.body.price);
   let item = new Item({
-    genre: genre,
+    gender: gender,
     title: title,
     description: description,
     imageUrl: result.secure_url,
@@ -186,37 +186,110 @@ exports.getPaginationItems = (req, res, next) => {
     });
 };
 
+exports.queryMaleItems = (req, res, next) => {
+  let ITEM_PER_PAGE = 8;
+  let page = parseInt(req.params.page);
+  let skip = (page - 1) * ITEM_PER_PAGE;
+  Item.find({ gender: 'male' })
+    .skip(skip)
+    .limit(ITEM_PER_PAGE)
+    .sort('-created')
+    .then((items) => {
+      return res.status(200).json(items);
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
+};
+exports.queryFemaleItems = (req, res, next) => {
+  let ITEM_PER_PAGE = 8;
+  let page = parseInt(req.params.page);
+  let skip = (page - 1) * ITEM_PER_PAGE;
+  Item.find({ gender: 'female' })
+    .skip(skip)
+    .limit(ITEM_PER_PAGE)
+    .sort('-created')
+    .then((items) => {
+      return res.status(200).json(items);
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
+};
+exports.queryChildrenItems = (req, res, next) => {
+  let ITEM_PER_PAGE = 8;
+  let page = parseInt(req.params.page);
+  let skip = (page - 1) * ITEM_PER_PAGE;
+  Item.find({ gender: 'children' })
+    .skip(skip)
+    .limit(ITEM_PER_PAGE)
+    .sort('-created')
+    .then((items) => {
+      return res.status(200).json(items);
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
+};
+
 exports.modifyItem = async (req, res, next) => {
   try {
     let id = req.params.id;
     let queryItem = await Item.findById(id);
     let obj = JSON.parse(JSON.stringify(req.body));
 
-    let filePath = !req.file ? obj.image : req.file.path;
+    let filePath = req.file && req.file.path;
+    if (filePath) {
+      await cloudinary.uploader.destroy(queryItem.cloudinary_id);
+      const result = await cloudinary.uploader.upload(filePath, {
+        upload_preset: 'ecommerce',
+      });
 
-    const result = await cloudinary.uploader.upload(filePath, {
-      upload_preset: 'ecommerce',
-    });
-
+      let money = TakeMyMoney(obj.price || queryItem.price);
+      const item = {
+        _id: id,
+        title: obj.title || queryItem.title,
+        description: obj.description || queryItem.description,
+        gender: obj.gender || queryItem.gender,
+        price: money,
+        imageUrl: result.secure_url,
+        cloudinary_id: result.public_id || queryItem.cloudinary_id,
+        quantityProducts: obj.quantity || queryItem.quantityProducts,
+        userId: req.user.userId || queryItem.userId,
+      };
+      await Item.findByIdAndUpdate(req.params.id, item, {
+        new: true,
+      }).lean();
+      return res.status(201).json({
+        message: 'Item Updated successfully!',
+      });
+    }
     let money = TakeMyMoney(obj.price || queryItem.price);
     const item = {
       _id: id,
       title: obj.title || queryItem.title,
       description: obj.description || queryItem.description,
+      gender: obj.gender || queryItem.gender,
       price: money,
-      imageUrl: obj.imageUrl || result.secure_url,
-      cloudinary_id: result.public_id || queryItem.cloudinary_id,
+      imageUrl: obj.image,
+      cloudinary_id: queryItem.cloudinary_id,
       quantityProducts: obj.quantity || queryItem.quantityProducts,
       userId: req.user.userId || queryItem.userId,
     };
     let newItem = await Item.findByIdAndUpdate(req.params.id, item, {
       new: true,
     }).lean();
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Item Updated successfully!',
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       error: error,
     });
   }
@@ -271,4 +344,67 @@ exports.searchItems = (req, res, next) => {
       }
     },
   ).lean();
+};
+
+exports.queryCountTypes = (req, res, next) => {
+  const pipeline = [
+    {
+      $facet: {
+        Female: [
+          {
+            $match: {
+              gender: 'female',
+            },
+          },
+          {
+            $count: 'Female',
+          },
+        ],
+        Male: [
+          {
+            $match: {
+              gender: 'male',
+            },
+          },
+          {
+            $count: 'Male',
+          },
+        ],
+        Children: [
+          {
+            $match: {
+              gender: 'children',
+            },
+          },
+          {
+            $count: 'Children',
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        Male: {
+          $arrayElemAt: ['$Male.Male', 0],
+        },
+        Female: {
+          $arrayElemAt: ['$Female.Female', 0],
+        },
+        Children: {
+          $arrayElemAt: ['$Children.Children', 0],
+        },
+      },
+    },
+  ];
+
+  Item.aggregate(pipeline)
+    .then((items) => {
+      let arr = Object.values(items[0]);
+      res.status(201).json(arr);
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
 };
