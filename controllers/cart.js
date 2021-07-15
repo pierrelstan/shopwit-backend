@@ -23,7 +23,6 @@ exports.addToCart = (req, res, next) => {
   Cart.findOne(
     { item: ItemId, userId: userId },
     function (err, alreadyExistCart) {
-      console.log(alreadyExistCart);
       if (err) console.log(err);
       if (alreadyExistCart) {
         return res.status(401).json({
@@ -46,7 +45,6 @@ exports.addToCart = (req, res, next) => {
               })
               .save()
               .then((carts) => {
-                console.log(cart);
                 res.status(201).json(carts);
               })
               .catch((error) => {
