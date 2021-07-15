@@ -13,6 +13,7 @@ const itemSchema = Schema({
     ref: 'User',
     require: true,
   },
+  gender: { type: String, require: true },
   ratings: { type: mongoose.Schema.ObjectId, ref: 'Rating' },
   rating: { type: Number, min: 1, max: 5 },
   cloudinary_id: { type: String },
