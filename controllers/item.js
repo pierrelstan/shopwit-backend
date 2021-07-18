@@ -350,48 +350,49 @@ exports.queryCountTypes = (req, res, next) => {
   const pipeline = [
     {
       $facet: {
-        Female: [
+        Woman: [
           {
             $match: {
-              gender: 'female',
+              gender: 'woman',
             },
           },
           {
-            $count: 'Female',
+            $count: 'Woman',
           },
         ],
-        Male: [
+        Men: [
           {
             $match: {
-              gender: 'male',
+              gender: 'men',
             },
           },
           {
-            $count: 'Male',
+            $count: 'Men',
           },
         ],
-        Children: [
+        Sneakers: [
           {
             $match: {
-              gender: 'children',
+              gender: 'sneakers',
             },
           },
           {
-            $count: 'Children',
+            $count: 'Sneakers',
           },
         ],
       },
     },
     {
       $project: {
-        Male: {
-          $arrayElemAt: ['$Male.Male', 0],
+        Men: {
+          $arrayElemAt: ['$Men.Men', 0],
         },
-        Female: {
-          $arrayElemAt: ['$Female.Female', 0],
+
+        Sneakers: {
+          $arrayElemAt: ['$Sneakers.Sneakers', 0],
         },
-        Children: {
-          $arrayElemAt: ['$Children.Children', 0],
+        Woman: {
+          $arrayElemAt: ['$Woman.Woman', 0],
         },
       },
     },
