@@ -400,7 +400,6 @@ exports.queryCountTypes = (req, res, next) => {
 
   Item.aggregate(pipeline)
     .then((items) => {
-      console.log(items);
       let arr = Object.values(items[0]);
       res.status(201).json(arr);
     })
