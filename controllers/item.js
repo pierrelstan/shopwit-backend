@@ -350,14 +350,14 @@ exports.queryCountTypes = (req, res, next) => {
   const pipeline = [
     {
       $facet: {
-        Woman: [
+        Women: [
           {
             $match: {
-              gender: 'woman',
+              gender: 'women',
             },
           },
           {
-            $count: 'Woman',
+            $count: 'Women',
           },
         ],
         Men: [
@@ -391,8 +391,8 @@ exports.queryCountTypes = (req, res, next) => {
         Sneakers: {
           $arrayElemAt: ['$Sneakers.Sneakers', 0],
         },
-        Woman: {
-          $arrayElemAt: ['$Woman.Woman', 0],
+        Women: {
+          $arrayElemAt: ['$Women.Women', 0],
         },
       },
     },
@@ -400,6 +400,7 @@ exports.queryCountTypes = (req, res, next) => {
 
   Item.aggregate(pipeline)
     .then((items) => {
+      console.log(items);
       let arr = Object.values(items[0]);
       res.status(201).json(arr);
     })
