@@ -21,11 +21,8 @@ router.get('/items/:id', ItemCtrl.getAllItemsByUser);
 // search items
 router.get('/s/search?', ItemCtrl.searchItems);
 
-// pagination items
-router.get('/page/:page', ItemCtrl.getPaginationItems);
-// pagination for male female children items
-router.get('/page/m/:page', ItemCtrl.queryMaleItems);
-router.get('/page/f/:page', ItemCtrl.queryFemaleItems);
-router.get('/page/c/:page', ItemCtrl.queryChildrenItems);
+// pagination for men women sneakers shop items
+router.get('/page/:page/:query', ItemCtrl.getPaginationItems);
+router.get('/page/:page', ItemCtrl.getPaginationsForShop);
 
 module.exports = router;
