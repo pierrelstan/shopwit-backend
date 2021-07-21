@@ -40,7 +40,7 @@ exports.getOneItem = (req, res, next) => {
   const pipeline = [
     {
       $match: {
-        _id: ObjectId(req.params.id),
+        _id: req.params.id,
       },
     },
     {
@@ -169,62 +169,33 @@ exports.getHeigthlastItems = (req, res, next) => {
 };
 
 exports.getPaginationItems = (req, res, next) => {
+  let query = req.params.query;
+  let ITEM_PER_PAGE = 8;
+  let page = parseInt(req.params.page);
+  let skip = (page - 1) * ITEM_PER_PAGE;
+  if (query) {
+    Item.find({
+      gender: query,
+    })
+      .skip(skip)
+      .limit(ITEM_PER_PAGE)
+      .sort('-created')
+      .then((items) => {
+        return res.status(200).json(items);
+      })
+      .catch((error) => {
+        res.status(400).json({
+          error: error,
+        });
+      });
+  }
+};
+
+exports.getPaginationsForShop = (req, res, next) => {
   let ITEM_PER_PAGE = 8;
   let page = parseInt(req.params.page);
   let skip = (page - 1) * ITEM_PER_PAGE;
   Item.find()
-    .skip(skip)
-    .limit(ITEM_PER_PAGE)
-    .sort('-created')
-    .then((items) => {
-      return res.status(200).json(items);
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
-    });
-};
-
-exports.queryMaleItems = (req, res, next) => {
-  let ITEM_PER_PAGE = 8;
-  let page = parseInt(req.params.page);
-  let skip = (page - 1) * ITEM_PER_PAGE;
-  Item.find({ gender: 'male' })
-    .skip(skip)
-    .limit(ITEM_PER_PAGE)
-    .sort('-created')
-    .then((items) => {
-      return res.status(200).json(items);
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
-    });
-};
-exports.queryFemaleItems = (req, res, next) => {
-  let ITEM_PER_PAGE = 8;
-  let page = parseInt(req.params.page);
-  let skip = (page - 1) * ITEM_PER_PAGE;
-  Item.find({ gender: 'female' })
-    .skip(skip)
-    .limit(ITEM_PER_PAGE)
-    .sort('-created')
-    .then((items) => {
-      return res.status(200).json(items);
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
-    });
-};
-exports.queryChildrenItems = (req, res, next) => {
-  let ITEM_PER_PAGE = 8;
-  let page = parseInt(req.params.page);
-  let skip = (page - 1) * ITEM_PER_PAGE;
-  Item.find({ gender: 'children' })
     .skip(skip)
     .limit(ITEM_PER_PAGE)
     .sort('-created')
