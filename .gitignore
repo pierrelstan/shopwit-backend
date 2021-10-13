@@ -6,3 +6,6 @@ functions
 
 /uploads/images
 .prettierrc.json
+
+#history
+.history
