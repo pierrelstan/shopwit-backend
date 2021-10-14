@@ -1,13 +1,14 @@
 const Order = require('../models/order');
 const Cart = require('../models/cart');
 const Item = require('../models/item');
-const cart = require('../models/cart');
+const { ObjectId } = require('bson');
 const stripe = require('stripe')(process.env.SECRET_KEY);
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const { cartIds, id } = req.body;
-    // console.log(req);
+    const { cartIds, id, IdItems } = req.body;
+
+    let uniqueItems = [...new Set(IdItems)];
 
     if (!req.user.userId) {
       res.status(404).json({
@@ -23,17 +24,15 @@ exports.createOrder = async (req, res, next) => {
       path: 'item',
       model: 'Item',
     });
-
     let mapPriceTotal = await carts.map((cart) => {
       return cart.quantity * cart.item.price;
     });
     let priceTotal = await mapPriceTotal.reduce((a, b) => {
       return a + b;
     }, 0);
-
     let order = await new Order({
       userId: req.user.userId,
-      carts: [...cartIds],
+      carts: uniqueItems,
       subTotal: priceTotal,
     });
     order.save();
@@ -49,7 +48,7 @@ exports.createOrder = async (req, res, next) => {
     });
 
     res.status(200).json(PAYMENTS_INTENTS.client_secret);
-  } catch (err) {
+  } catch (error) {
     res.status(404).json({
       error: error,
     });
@@ -57,21 +56,19 @@ exports.createOrder = async (req, res, next) => {
 };
 
 exports.findOrderByUserId = async (req, res, next) => {
-  let id = req.user.userId;
-  let order = Order.find({ userId: id });
+  let id = req.params.id;
 
-  order.populate({
-    path: 'carts.item',
-    model: 'Item',
-  });
-
-  order
-    .then((order) => {
-      res.status(201).json(order);
-    })
-    .catch((error) => {
-      res.status(404).json({
-        error: error,
+  try {
+    let ORDER = await Order.find({ userId: ObjectId(id) })
+      .sort('-created')
+      .populate({
+        path: 'carts',
+        model: 'Item',
       });
+    res.status(201).json(ORDER);
+  } catch (error) {
+    res.status(404).json({
+      error: error,
     });
+  }
 };
