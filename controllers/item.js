@@ -8,17 +8,43 @@ const cloudinary = require('../middleware/cloudinary');
 const { ObjectId } = require('bson');
 
 exports.createProduct = async (req, res, next) => {
-  const { title, quantity, description, gender } = req.body;
-  const result = await cloudinary.uploader.upload(req.file.path, {
-    upload_preset: 'ecommerce',
-  });
+  const { title, quantity, description, gender, image } = req.body;
+  let filePath = req.file && req.file.path;
   let money = TakeMyMoney(req.body.price);
+  if (filePath) {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      upload_preset: 'ecommerce',
+    });
+
+    let item = new Item({
+      gender: gender,
+      title: title,
+      description: description,
+      imageUrl: result.secure_url,
+      cloudinary_id: result.public_id,
+      price: money,
+      quantityProducts: quantity,
+      userId: req.user.userId,
+    });
+    item.save((error, data) => {
+      if (error) {
+        res.status(400).json({
+          error: error,
+        });
+      } else {
+        res.status(201).json({
+          message: 'Item create successfully!',
+        });
+      }
+    });
+  }
+
   let item = new Item({
     gender: gender,
     title: title,
     description: description,
-    imageUrl: result.secure_url,
-    cloudinary_id: result.public_id,
+    imageUrl: image,
+    cloudinary_id: '',
     price: money,
     quantityProducts: quantity,
     userId: req.user.userId,
@@ -40,7 +66,7 @@ exports.getOneItem = (req, res, next) => {
   const pipeline = [
     {
       $match: {
-        _id: req.params.id,
+        _id: ObjectId(req.params.id),
       },
     },
     {
