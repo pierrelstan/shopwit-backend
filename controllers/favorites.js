@@ -15,7 +15,7 @@ exports.addToFavorites = (req, res, next) => {
   }
 
   let ItemId = req.params.id;
-  let item = Item.findOne({
+  let item = Item.findById({
     _id: ItemId,
   });
   // find if cart already exist for the user
@@ -89,7 +89,7 @@ exports.findFavoritesByUserId = (req, res, next) => {
 
 exports.removeFavoritesById = async (req, res, next) => {
   try {
-    let id = req.body.userId;
+    let id = req.user.userId;
     let favoriteById = await Favorites.findOne({ _id: req.params.id });
     const { userId } = favoriteById;
     if (userId === id) {
