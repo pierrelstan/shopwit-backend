@@ -51,6 +51,16 @@ mongoose
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
+    writeConcern: {
+      w: 'majority',
+      j: false,
+      wtimeout: 2500,
+    },
+    w: 'majority',
+    poolSize: 50,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 2500,
   })
   .then(() => {
     console.log('Successfully connected to MONGODB ATLAS!');
