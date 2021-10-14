@@ -3,6 +3,7 @@ const Item = require('../models/item');
 const Cart = require('../models/cart');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+const { ObjectId } = require('bson');
 
 exports.addToCart = (req, res, next) => {
   const errors = validationResult(req);
@@ -149,6 +150,30 @@ exports.removeCartById = async (req, res, next) => {
     }
   } catch (error) {
     await res.status(404).json({
+      error: error,
+    });
+  }
+};
+
+exports.removeCartsIdsAfterTheOrdering = async (req, res, next) => {
+  const { cartIds } = req.body;
+  if (!req.user.userId) {
+    res.status(404).json({
+      errors: [{ msg: 'You must sign in to complete this order' }],
+    });
+  }
+  try {
+    let carts = await Cart.deleteMany({
+      _id: {
+        $in: cartIds,
+      },
+    });
+
+    return res.status(201).json({
+      message: 'Carts remove successfully !',
+    });
+  } catch (error) {
+    return res.status(404).json({
       error: error,
     });
   }
