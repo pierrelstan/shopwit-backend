@@ -294,8 +294,9 @@ exports.modifyItem = async (req, res, next) => {
 
 exports.deleteItem = async (req, res, next) => {
   let itemById = await Item.findById({ _id: req.params.id }).lean();
-  await cloudinary.uploader.destroy(itemById.cloudinary_id);
-
+  if(itemById.cloudinary_id) {
+    await cloudinary.uploader.destroy(itemById.cloudinary_id);
+  }
   try {
     await Item.findOneAndDelete({
       _id: req.params.id,
