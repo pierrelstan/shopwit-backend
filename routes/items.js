@@ -12,11 +12,11 @@ router.get('/counts', ItemCtrl.queryCountTypes);
 // create a new item
 router.post('/new', fileUpload.single('image'), auth, ItemCtrl.createProduct);
 // retrieving one item
-router.get('/:id', ItemCtrl.getOneItem);
+router.get('/item/:id', ItemCtrl.getOneItem);
 // edit item
 router.put('/:id', fileUpload.single('image'), auth, ItemCtrl.modifyItem);
 // delete an item
-router.delete('/:id', auth, ItemCtrl.deleteItem);
+router.delete('/item/:id', auth, ItemCtrl.deleteItem);
 router.get('/items/:id', ItemCtrl.getAllItemsByUser);
 // search items
 router.get('/s/search?', ItemCtrl.searchItems);
