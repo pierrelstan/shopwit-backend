@@ -14,6 +14,7 @@ const itemSchema = Schema({
     require: true,
   },
   gender: { type: String, require: true },
+  activeFlag: {type: Number , min:0, max: 1, default: 0, require: true},
   ratings: { type: mongoose.Schema.ObjectId, ref: 'Rating' },
   rating: { type: Number, min: 1, max: 5 },
   cloudinary_id: { type: String },
