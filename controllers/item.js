@@ -1,7 +1,4 @@
 const Item = require('../models/item');
-const jwt = require('jsonwebtoken');
-const Order = require('../models/order');
-const User = require('../models/user');
 const TakeMyMoney = require('../utils/TakeMyMoney');
 const cloudinary = require('../middleware/cloudinary');
 
@@ -39,27 +36,7 @@ exports.createProduct = async (req, res, next) => {
     });
   }
 
-  let item = new Item({
-    gender: gender,
-    title: title,
-    description: description,
-    imageUrl: image,
-    cloudinary_id: '',
-    price: money,
-    quantityProducts: quantity,
-    userId: req.user.userId,
-  });
-  item.save((error, data) => {
-    if (error) {
-      res.status(400).json({
-        error: error,
-      });
-    } else {
-      res.status(201).json({
-        message: 'Item create successfully!',
-      });
-    }
-  });
+
 };
 
 exports.getOneItem = (req, res, next) => {
@@ -106,7 +83,7 @@ exports.getOneItem = (req, res, next) => {
 };
 
 exports.getAllItem = (req, res, next) => {
-  Item.find({})
+  Item.find({ activeFlag: {$ne: 1}})
     .limit(8)
     .sort('-created')
     .lean()
@@ -236,55 +213,52 @@ exports.getPaginationsForShop = (req, res, next) => {
 };
 
 exports.modifyItem = async (req, res, next) => {
+
   try {
+    // the id of the item
     let id = req.params.id;
     let queryItem = await Item.findById(id);
-    let obj = JSON.parse(JSON.stringify(req.body));
+    //  if file exist return file otherwise the  image url
 
-    let filePath = req.file && req.file.path;
-    if (filePath) {
-      await cloudinary.uploader.destroy(queryItem.cloudinary_id);
-      const result = await cloudinary.uploader.upload(filePath, {
-        upload_preset: 'ecommerce',
-      });
+    let filePath = await req.file && req.file.path ? req.file.path : queryItem.imageUrl;
 
-      let money = TakeMyMoney(obj.price || queryItem.price);
+   let result;
+   try{
+     result = await cloudinary.uploader.upload(filePath, {
+      upload_preset: 'ecommerce',
+    },(error)=> {
+     console.log(error)
+    });
+
+    await cloudinary.uploader.destroy(queryItem.cloudinary_id);
+   }catch(err){
+     console.log(err)
+   }
+     //convert the price
+    let money = TakeMyMoney(req.body.price || queryItem.price);
+
+      let RESULT = JSON.parse(JSON.stringify(result));
       const item = {
         _id: id,
-        title: obj.title || queryItem.title,
-        description: obj.description || queryItem.description,
-        gender: obj.gender || queryItem.gender,
+        title: req.body.title || queryItem.title,
+        description: req.body.description || queryItem.description,
+        gender: req.body.gender || queryItem.gender,
         price: money,
-        imageUrl: result.secure_url,
-        cloudinary_id: result.public_id || queryItem.cloudinary_id,
-        quantityProducts: obj.quantity || queryItem.quantityProducts,
-        userId: req.user.userId || queryItem.userId,
+        imageUrl: RESULT.secure_url || queryItem.imageUrl,
+        cloudinary_id: RESULT.public_id || queryItem.cloudinary_id,
+        quantityProducts: req.body.quantity || queryItem.quantityProducts,
+        userId: req.user.userId,
       };
-      await Item.findByIdAndUpdate(req.params.id, item, {
+
+      await Item.findByIdAndUpdate(id, item, {
         new: true,
-      }).lean();
+        upsert: true,
+        rawResult: true
+      })
+
       return res.status(201).json({
         message: 'Item Updated successfully!',
       });
-    }
-    let money = TakeMyMoney(obj.price || queryItem.price);
-    const item = {
-      _id: id,
-      title: obj.title || queryItem.title,
-      description: obj.description || queryItem.description,
-      gender: obj.gender || queryItem.gender,
-      price: money,
-      imageUrl: obj.image,
-      cloudinary_id: queryItem.cloudinary_id,
-      quantityProducts: obj.quantity || queryItem.quantityProducts,
-      userId: req.user.userId || queryItem.userId,
-    };
-    let newItem = await Item.findByIdAndUpdate(req.params.id, item, {
-      new: true,
-    }).lean();
-    return res.status(201).json({
-      message: 'Item Updated successfully!',
-    });
   } catch (error) {
     return res.status(400).json({
       error: error,
@@ -293,15 +267,26 @@ exports.modifyItem = async (req, res, next) => {
 };
 
 exports.deleteItem = async (req, res, next) => {
-  let itemById = await Item.findById({ _id: req.params.id }).lean();
-  if(itemById.cloudinary_id) {
-    await cloudinary.uploader.destroy(itemById.cloudinary_id);
-  }
+  // let itemById = await Item.findById({ _id: req.params.id }).lean();
+  // if(itemById.cloudinary_id) {
+  //   await cloudinary.uploader.destroy(itemById.cloudinary_id);
+  // }
   try {
-    await Item.findOneAndDelete({
+    await Item.findByIdAndUpdate({
       _id: req.params.id,
       userId: req.user.userId,
+    },
+    {
+      activeFlag: req.body.activeFlag
+    },
+    {
+      new: true,
+      upsert: true,
+      rawResult: true
     }).lean();
+    return res.status(201).json({
+      message: 'Delete successfully!',
+    });
   } catch (error) {
     res.status(400).json({
       error: error,
